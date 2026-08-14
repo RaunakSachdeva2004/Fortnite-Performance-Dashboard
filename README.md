@@ -1,6 +1,6 @@
 <div align="center">
 
-![Fortnite Performance Dashboard Hero Banner](./assets/images/fortnite_dashboard_hero.jpg)
+<img src="./assets/images/fortnite_ai_coaching.jpg" alt="Fortnite Performance Dashboard Analytics" width="750" style="border-radius: 12px; margin-bottom: 15px;" />
 
 # 🏆 Fortnite Performance Dashboard
 ### ASP.NET Core 8 MVC Esports Analytics & AI-Assisted Coaching System
@@ -14,7 +14,7 @@
 [![API](https://img.shields.io/badge/API-FortniteAPI.io-0078D4?style=for-the-badge&logo=fortnite&logoColor=white)](https://fortniteapi.io/)
 
 <p align="center">
-  <b>A professional, enterprise-grade esports analytics web platform engineered with ASP.NET Core MVC. Pushing real-time player telemetries from FortniteAPI.io, computing automated esports KPIs, and delivering rule-based AI coaching recommendations to level up your Battle Royale gameplay.</b>
+  <b>An esports analytics web platform engineered with ASP.NET Core MVC. Syncs player match stats via FortniteAPI.io, computes esports KPIs, renders Chart.js trends, and generates rule-based AI coaching recommendations.</b>
 </p>
 
 [Key Features](#-key-features) • [MVC Architecture](#-architecture--mvc-design-pattern) • [System Flowcharts](#-system-flowcharts--diagrams) • [Database Schema](#-database-schema--erd) • [AI Coaching Engine](#-ai-assisted-coaching-engine) • [Installation](#-installation--getting-started)
@@ -23,28 +23,28 @@
 
 </div>
 
-## 📌 Executive Summary & Case Study
+## 📌 Case Study & Overview
 
-In modern competitive Battle Royale esports like **Fortnite**, players generate immense volumes of performance metrics across every match—eliminations, survival placement, accuracy deltas, and K/D ratios. However, tracking performance historically across disjointed tools creates friction and obscures actionable improvement trends.
+In competitive Battle Royale games like **Fortnite**, players generate rich match telemetries—eliminations, survival placement, weapon accuracy, and K/D ratios. However, checking stats across scattered tools obscures historical improvement trends.
 
-The **Fortnite Performance Dashboard** solves this by unifying player telemetries into a sleek, high-impact web application. By leveraging `FortniteAPI.io`, ASP.NET Core 8 MVC, Entity Framework Core, SQL Server, and Chart.js, the system automatically imports digital match metrics, calculates critical esports KPIs, renders interactive analytical charts, and executes rule-based AI coaching to pinpoint gameplay weaknesses.
+The **Fortnite Performance Dashboard** unifies player match data into a clean ASP.NET Core 8 MVC web application. Integrating `FortniteAPI.io`, Entity Framework Core, SQL Server, and Chart.js, the system imports digital match metrics, computes performance KPIs, renders dynamic trend graphs, and executes a rule-based AI coaching engine to highlight actionable areas for improvement.
 
 ---
 
 ## ✨ Key Features
 
-- **🎮 Seamless Account Synchronization**: Link Epic Games / Fortnite usernames to pull real-time match data via `FortniteAPI.io`.
-- **📊 Interactive Chart.js Dashboards**: High-performance visual breakdown of Elimination/Death (K/D) Ratios, Win Rates, Weapon Accuracy, and Match Volume trends over time.
-- **🤖 Rule-Based AI Coaching Engine**: Automated evaluation engine providing custom actionable advice (aim training, bloom management, drop spot optimization, endgame survival).
-- **🛡️ Thin Controller & Enterprise Service Layer**: Clean N-tier architecture separating HTTP routing, business logic, API clients, and database access.
-- **👥 Role-Based Access Control (RBAC)**: Distinct workflows for **Players** (sync stats, view analytics, read coaching suggestions) and **Administrators** (manage player rosters, configure game mode categories like Solo/Duo/Squad, view platform-wide stats).
-- **⚡ Cooldown & Rate-Limit Shield**: Smart client-side and server-side cooldown window enforcement keeping third-party API usage strictly within free-tier limits (10 requests/min).
+- **🎮 Fortnite Account Sync**: Link Epic Games usernames to fetch real-time match statistics from `FortniteAPI.io`.
+- **📊 Chart.js Analytics**: Visual breakdowns of K/D Ratios, Win Rates, Weapon Accuracy, and Match Volume trends.
+- **🤖 Rule-Based AI Coaching**: Automated advice generator evaluating player metrics against competitive thresholds.
+- **🛡️ Clean MVC & Service Layer**: Decoupled N-tier architecture keeping controllers lightweight and business logic encapsulated.
+- **👥 Role-Based Access Control (RBAC)**: Distinct permissions for **Players** (sync & view stats/coaching) and **Administrators** (manage roster & game mode categories).
+- **⚡ Rate-Limit Protection**: Built-in cooldown handling for `FortniteAPI.io` free-tier rate limits (10 requests/min).
 
 ---
 
 ## 🏗️ Architecture & MVC Design Pattern
 
-The application enforces a strict **Layered (N-Tier) ASP.NET Core MVC Architecture**, isolating responsibilities so that controllers remain lightweight and business logic lives entirely within dedicated service interfaces.
+The application enforces a **Layered (N-Tier) ASP.NET Core MVC Architecture**, ensuring clear separation of concerns:
 
 ```
        +-------------------------------------------------------------+
@@ -77,21 +77,21 @@ The application enforces a strict **Layered (N-Tier) ASP.NET Core MVC Architectu
        +-------------------------------------------------------------+
 ```
 
-### Applied Design Patterns Rationale
+### Applied Design Patterns
 
-| Pattern | Implementation Location | Purpose & Architectural Benefit |
+| Pattern | Location | Architectural Purpose |
 | :--- | :--- | :--- |
-| **MVC Pattern** | Web Core (`Controllers/`, `Views/`, `Models/`) | Decouples request handling, data representation, and UI presentation. |
-| **Service Layer** | `Services/` (`StatsService`, `FortniteApiClient`) | Encapsulates all third-party API interaction and mathematical stat calculations outside controllers. |
-| **Strategy Pattern** | `Services/IRecommendationEngine.cs` | Decouples coaching rules into a swappable interface; allows seamless future replacement with LLM / OpenAI services without altering DB or controllers. |
-| **Repository Semantics**| EF Core `DbContext` + `DbSet<T>` | Provides native unit-of-work state management and LINQ query abstraction. |
-| **Dependency Injection**| ASP.NET Core Native DI (`Program.cs`) | Registers services with scoped/transient lifecycles to enable mock testing and loose coupling. |
+| **MVC Pattern** | Web Core | Decouples HTTP request routing, data representation, and UI views. |
+| **Service Layer** | `Services/` | Encapsulates third-party API calls and KPI computations outside controllers. |
+| **Strategy Pattern** | `IRecommendationEngine.cs` | Allows swapping rule-based coaching for AI/LLM models without modifying DB/Controllers. |
+| **Repository Semantics**| EF Core `DbContext` | Native unit-of-work state tracking and LINQ abstractions. |
+| **Dependency Injection**| ASP.NET Core Native DI | Registers services with scoped lifecycles for testability and loose coupling. |
 
 ---
 
 ## 📊 System Flowcharts & Diagrams
 
-### 1. System Request & Execution Sequence
+### 1. Request & Execution Sequence
 
 ```mermaid
 sequenceDiagram
@@ -103,20 +103,20 @@ sequenceDiagram
     participant AI as 🧠 RecommendationEngine
     participant DB as 💾 SQL Server (EF Core)
 
-    Player->>Ctrl: Click "Sync Stats" Button
+    Player->>Ctrl: Click "Sync Stats"
     Ctrl->>Service: SyncAsync(playerId)
     Service->>API: Fetch Player Stats (FortniteUsername)
-    API-->>Service: Return JSON Stats (Kills, Wins, Accuracy, Matches)
+    API-->>Service: Return JSON Match Data
     Service->>Service: Calculate K/D Ratio & Win Rate %
-    Service->>DB: Upsert Stats Record (EF Core)
+    Service->>DB: Upsert Stats Record
     Service->>AI: GenerateRecommendations(Stats)
-    AI-->>Service: Return Tailored Coaching Advice Rules
+    AI-->>Service: Return Strategy Advice Rules
     Service->>DB: Save Recommendations Record
-    DB-->>Ctrl: Update Execution Succeeded
-    Ctrl-->>Player: Render Updated Dashboard View with Chart.js Graphs
+    DB-->>Ctrl: Update Completed
+    Ctrl-->>Player: Render Updated Dashboard with Chart.js
 ```
 
-### 2. End-to-End System Workflow Flowchart
+### 2. End-to-End System Workflow
 
 ```mermaid
 flowchart TD
@@ -141,15 +141,9 @@ flowchart TD
 
 ---
 
-## 🖼️ AI Coaching & Analytics Interface
-
-![AI Coaching Banner](./assets/images/fortnite_ai_coaching.jpg)
-
----
-
 ## 🗄️ Database Schema & ERD
 
-The database architecture is designed with strict relational integrity in **Microsoft SQL Server**, ensuring low overhead and normalized entity relationships.
+Designed with strict relational integrity in **Microsoft SQL Server**:
 
 ```mermaid
 erDiagram
@@ -194,11 +188,7 @@ erDiagram
 
 ---
 
-## 📈 Visual Performance KPI Mockups
-
-Below is a representation of the analytical tracking generated on the presentation layer via **Chart.js**:
-
-### 📊 Season Performance & Trend Metrics
+## 📈 Performance KPI Mockups
 
 ```
 +-----------------------------------------------------------------------+
@@ -222,10 +212,9 @@ Below is a representation of the analytical tracking generated on the presentati
 
 ## 🤖 AI-Assisted Coaching Engine
 
-The **RecommendationEngine** evaluates individual performance indicators against preset competitive thresholds to generate high-yield strategy tips:
+The **RecommendationEngine** evaluates match performance against competitive thresholds:
 
 ```csharp
-// Example Strategy Logic snippet (Services/RecommendationEngine.cs)
 public class RuleBasedRecommendationEngine : IRecommendationEngine 
 {
     public IEnumerable<string> GenerateRecommendations(Stats stat)
@@ -233,133 +222,77 @@ public class RuleBasedRecommendationEngine : IRecommendationEngine
         var recommendations = new List<string>();
 
         if (stat.Accuracy < 0.25f) {
-            recommendations.Add("🎯 Low Accuracy Detected (<25%): Practice trigger discipline and bloom management in Creative Aim Trainers.");
+            recommendations.Add("🎯 Low Accuracy (<25%): Focus on bloom control and trigger discipline.");
         }
         if (stat.KDRatio < 1.5f) {
-            recommendations.Add("⚔️ K/D Ratio Below Target (<1.5): Prioritize high-ground positioning during mid-game rotates.");
+            recommendations.Add("⚔️ Low K/D (<1.5): Work on high-ground retakes during mid-game rotations.");
         }
         if (stat.Wins / (float)Math.Max(1, stat.MatchesPlayed) < 0.10f) {
-            recommendations.Add("🏆 Win Rate Under 10%: Avoid unnecessary early 50/50 drops; target outer POIs for safer looting.");
+            recommendations.Add("🏆 Win Rate < 10%: Avoid hot dropping; prioritize edge POIs for safer looting.");
         }
         return recommendations;
     }
 }
 ```
 
-> [!TIP]
-> **Swappable Architecture**: Because the recommendation logic implements `IRecommendationEngine`, you can easily replace `RuleBasedRecommendationEngine` with `OpenAiCoachingEngine` via Dependency Injection in `Program.cs` without touching any Database or Controller logic!
-
 ---
 
-## 📁 Repository Directory Structure
+## 📁 Repository Structure
 
 ```
 Fortnite-Performance-Dashboard/
 ├── assets/
-│   └── images/                  # High-res graphics & architecture banners
-│       ├── fortnite_dashboard_hero.jpg
+│   └── images/                  # Graphic asset for README header
 │       └── fortnite_ai_coaching.jpg
 ├── Controllers/
-│   ├── AccountController.cs     # Auth, Register, Login, Role claim management
-│   ├── AdminController.cs       # Player roster management & platform stats
-│   └── DashboardController.cs   # Main dashboard rendering & stat sync action
+│   ├── AccountController.cs     # Auth, Registration, Roles
+│   ├── AdminController.cs       # Roster management & admin stats
+│   └── DashboardController.cs   # Dashboard rendering & sync trigger
 ├── Data/
-│   ├── ApplicationDbContext.cs  # EF Core DbContext configuration
-│   └── Migrations/              # SQL Server Database migrations
+│   ├── ApplicationDbContext.cs  # EF Core DbContext
+│   └── Migrations/              # Database migration scripts
 ├── Models/
 │   ├── User.cs                  # User entity & credentials
 │   ├── Player.cs                # Linked Fortnite profile model
 │   ├── Stats.cs                 # Match stats & computed KPIs
 │   └── Recommendation.cs       # AI recommendation entity
 ├── Services/
-│   ├── IFortniteApiClient.cs    # Contract for external FortniteAPI.io client
-│   ├── FortniteApiClient.cs     # API HTTP client implementation
-│   ├── IStatsService.cs         # Stat processing contract
-│   ├── StatsService.cs          # Core business logic & EF database updates
-│   └── RecommendationEngine.cs  # Rule-based AI coaching strategy engine
+│   ├── IFortniteApiClient.cs    # FortniteAPI.io client interface
+│   ├── FortniteApiClient.cs     # API client implementation
+│   ├── IStatsService.cs         # Stat processing interface
+│   ├── StatsService.cs          # Core business logic & database updates
+│   └── RecommendationEngine.cs  # Rule-based AI coaching engine
 ├── Views/
-│   ├── Dashboard/               # Dashboard Razor Views (Chart.js integration)
+│   ├── Dashboard/               # Razor Views with Chart.js
 │   ├── Admin/                   # Admin panel views
-│   └── Shared/                  # Layout, Navigation & Partial Views
-├── wwwroot/
-│   ├── css/                     # Custom dark-theme gaming stylesheet
-│   └── js/                      # Chart.js initialization scripts
-├── appsettings.json             # API Keys & Connection Strings
-├── Program.cs                   # ASP.NET Core DI setup & middleware pipeline
+│   └── Shared/                  # Navigation & layout templates
+├── appsettings.json             # API keys & SQL connection strings
+├── Program.cs                   # Middleware & Dependency Injection setup
 └── README.md                    # Project documentation
 ```
 
 ---
 
-## ⚙️ Installation & Getting Started
+## ⚙️ Quick Start
 
-### Prerequisites
+```bash
+# 1. Clone repository
+git clone https://github.com/RaunakSachdeva2004/Fortnite-Performance-Dashboard.git
+cd Fortnite-Performance-Dashboard
 
-- [NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) installed
-- [Microsoft SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) (LocalDB, Express, or Enterprise)
-- Visual Studio 2022 / VS Code / JetBrains Rider
-- Free API Key from [FortniteAPI.io](https://fortniteapi.io/)
+# 2. Update appsettings.json with your SQL Connection String & FortniteAPI.io Key
 
-### 🚀 Setup Steps
+# 3. Apply migrations
+dotnet ef database update
 
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/RaunakSachdeva2004/Fortnite-Performance-Dashboard.git
-   cd Fortnite-Performance-Dashboard
-   ```
-
-2. **Configure Settings**:
-   Open `appsettings.json` and add your Database Connection String and FortniteAPI.io key:
-   ```json
-   {
-     "ConnectionStrings": {
-       "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=FortniteDashboardDb;Trusted_Connection=True;MultipleActiveResultSets=true"
-     },
-     "FortniteApi": {
-       "ApiKey": "YOUR_FORTNITE_API_KEY_HERE",
-       "BaseUrl": "https://fortniteapi.io/v1/"
-     }
-   }
-   ```
-
-3. **Apply EF Core Database Migrations**:
-   ```bash
-   dotnet ef database update
-   ```
-
-4. **Build & Run the Application**:
-   ```bash
-   dotnet run
-   ```
-
-5. **Access the Dashboard**:
-   Open your browser and navigate to `https://localhost:7050` or `http://localhost:5050`.
-
----
-
-## 🛡️ Non-Functional Requirements & Security
-
-- **🔒 Password Security**: Uses ASP.NET Core Identity password hashing (`PasswordHasher<T>`).
-- **🛡️ SQL Injection Prevention**: EF Core parametrizes all query operations by default via LINQ.
-- **🛑 Rate-Limiting**: Cooldown mechanism client/server side respecting `FortniteAPI.io` rate limit (10 calls/min on free tier).
-- **🔑 Role-Based Access Control**: Sensitive actions are decorated with `[Authorize(Roles = "Administrator")]` attributes.
-- **⚡ High Responsiveness**: Client-side chart rendering via pre-fetched JSON payloads avoids server rendering bottlenecks.
-
----
-
-## 🔮 Future Roadmap (Out-of-Scope Extensions)
-
-- [ ] **Live Telemetry Stream**: Real-time match tracking during live gameplay.
-- [ ] **LLM Integration**: Replacing the rule-based recommendation strategy with OpenAI GPT-4 / Gemini API for personalized video breakdown tips.
-- [ ] **Weapon Loadout Analytics**: Granular weapon choice effectiveness tracking (Shotgun vs SMG win rates).
-- [ ] **Esports Team Tournaments**: Squad ranking leaderboards for amateur esports organizations.
+# 4. Run application
+dotnet run
+```
 
 ---
 
 <div align="center">
 
-Developed with ❤️ by **Group 15** for ASP.NET Core MVC Capstone / System Design.
-
-[![GitHub](https://img.shields.io/badge/GitHub-RaunakSachdeva2004-181717?style=flat&logo=github)](https://github.com/RaunakSachdeva2004/Fortnite-Performance-Dashboard)
+Developed with ❤️ by **Group 15** for ASP.NET Core MVC Capstone.
 
 </div>
