@@ -1,8 +1,4 @@
-/* =========================================================================
-   Fortnite Performance Dashboard - Database Schema
-   Target: Microsoft SQL Server (compatible with EF Core 8 conventions)
-   Source: Section 9 - Database Requirements
-   ========================================================================= */
+
 
 IF DB_ID('FortniteDashboardDb') IS NULL
 BEGIN
