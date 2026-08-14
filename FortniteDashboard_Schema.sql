@@ -9,25 +9,27 @@ GO
 USE FortniteDashboardDb;
 GO
 
-/* -------------------------------------------------------------------------
+/* 
    Drop existing objects (safe re-run during development)
-   ------------------------------------------------------------------------- */
+ */
+    
 IF OBJECT_ID('dbo.Recommendations', 'U') IS NOT NULL DROP TABLE dbo.Recommendations;
 IF OBJECT_ID('dbo.Stats', 'U') IS NOT NULL DROP TABLE dbo.Stats;
 IF OBJECT_ID('dbo.Players', 'U') IS NOT NULL DROP TABLE dbo.Players;
 IF OBJECT_ID('dbo.Users', 'U') IS NOT NULL DROP TABLE dbo.Users;
 GO
 
-/* -------------------------------------------------------------------------
+/* 
    Users
    Handles authentication and role-based access (Player / Administrator)
-   ------------------------------------------------------------------------- */
+ */
+    
 CREATE TABLE dbo.Users
 (
     UserId          INT IDENTITY(1,1)      NOT NULL,
     Name            NVARCHAR(100)          NOT NULL,
     Email           NVARCHAR(256)          NOT NULL,
-    PasswordHash    NVARCHAR(512)          NOT NULL,   -- store a hash, never plain text
+    PasswordHash    NVARCHAR(512)          NOT NULL,   -- store a hash, not a  plain text
     Role            NVARCHAR(20)           NOT NULL
         CONSTRAINT DF_Users_Role DEFAULT ('Player'),
     CreatedDate     DATETIME2              NOT NULL
@@ -39,15 +41,16 @@ CREATE TABLE dbo.Users
 );
 GO
 
-/* -------------------------------------------------------------------------
+/* 
    Players
    One-to-one with Users (a user who has linked a Fortnite account)
-   ------------------------------------------------------------------------- */
+ */
+    
 CREATE TABLE dbo.Players
 (
     PlayerId            INT IDENTITY(1,1)      NOT NULL,
     UserId               INT                    NOT NULL,
-    FortniteUsername     NVARCHAR(100)          NOT NULL,   -- Epic username, links to FortniteAPI.io
+    FortniteUsername     NVARCHAR(100)          NOT NULL,   -- EpicId username, links to FortniteAPI.io
     Game                 NVARCHAR(50)           NOT NULL
         CONSTRAINT DF_Players_Game DEFAULT ('Fortnite'),
     Team                 NVARCHAR(100)          NULL,
@@ -63,10 +66,11 @@ CREATE TABLE dbo.Players
 );
 GO
 
-/* -------------------------------------------------------------------------
+/* 
    Stats
    One Stats record per Player, overwritten/updated on each sync
-   ------------------------------------------------------------------------- */
+ */
+    
 CREATE TABLE dbo.Stats
 (
     StatId          INT IDENTITY(1,1)      NOT NULL,
@@ -99,10 +103,10 @@ CREATE TABLE dbo.Stats
 );
 GO
 
-/* -------------------------------------------------------------------------
-   Recommendations
+/*
+   RECOMMENDATIONS
    Many-to-one with Players (rule-based coaching output, history kept)
-   ------------------------------------------------------------------------- */
+  */
 CREATE TABLE dbo.Recommendations
 (
     RecommendationId    INT IDENTITY(1,1)      NOT NULL,
@@ -118,9 +122,9 @@ CREATE TABLE dbo.Recommendations
 );
 GO
 
-/* -------------------------------------------------------------------------
+/* 
    Helpful indexes for common dashboard queries
-   ------------------------------------------------------------------------- */
+ */
 CREATE NONCLUSTERED INDEX IX_Recommendations_PlayerId_CreatedDate
     ON dbo.Recommendations (PlayerId, CreatedDate DESC);
 
@@ -128,23 +132,23 @@ CREATE NONCLUSTERED INDEX IX_Players_UserId
     ON dbo.Players (UserId);
 GO
 
-/* -------------------------------------------------------------------------
-   Optional: seed data for local development / demo
-   ------------------------------------------------------------------------- */
-INSERT INTO dbo.Users (Name, Email, PasswordHash, Role)
-VALUES
-    ('Admin User', 'admin@example.com', 'CHANGE_ME_HASH', 'Administrator'),
-    ('Jane Player', 'jane@example.com', 'CHANGE_ME_HASH', 'Player');
+-- /* 
+--    Optional: seed data for local development / demo
+--  */
+-- INSERT INTO dbo.Users (Name, Email, PasswordHash, Role)
+-- VALUES
+--     ('Admin User', 'admin@example.com', 'CHANGE_ME_HASH', 'Administrator'),
+--     ('Jane Player', 'jane@example.com', 'CHANGE_ME_HASH', 'Player');
 
-INSERT INTO dbo.Players (UserId, FortniteUsername, Game, Team)
-VALUES
-    (2, 'JanePlaysFN', 'Fortnite', NULL);
+-- INSERT INTO dbo.Players (UserId, FortniteUsername, Game, Team)
+-- VALUES
+--     (2, 'JanePlaysFN', 'Fortnite', NULL);
 
-INSERT INTO dbo.Stats (PlayerId, Eliminations, Wins, Accuracy, KDRatio, MatchesPlayed)
-VALUES
-    (1, 250, 12, 21.50, 1.85, 140);
+-- INSERT INTO dbo.Stats (PlayerId, Eliminations, Wins, Accuracy, KDRatio, MatchesPlayed)
+-- VALUES
+--     (1, 250, 12, 21.50, 1.85, 140);
 
-INSERT INTO dbo.Recommendations (PlayerId, RecommendationText)
-VALUES
-    (1, 'Your accuracy is below 25%. Try spending 15 minutes in Creative aim-training maps before ranked matches.');
-GO
+-- INSERT INTO dbo.Recommendations (PlayerId, RecommendationText)
+-- VALUES
+--     (1, 'Your accuracy is below 25%. Try spending 15 minutes in Creative aim-training maps before ranked matches.');
+-- GO
