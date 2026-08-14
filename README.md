@@ -17,7 +17,7 @@
   <b>An esports analytics web platform engineered with ASP.NET Core MVC. Syncs player match stats via FortniteAPI.io, computes esports KPIs, renders Chart.js trends, and generates rule-based AI coaching recommendations.</b>
 </p>
 
-[Key Features](#-key-features) • [MVC Architecture](#-architecture--mvc-design-pattern) • [System Flowcharts](#-system-flowcharts--diagrams) • [Database Schema](#-database-schema--erd) • [AI Coaching Engine](#-ai-assisted-coaching-engine) • [Installation](#-installation--getting-started)
+[Key Features](#-key-features) • [MVC Architecture](#-architecture--mvc-design-pattern) • [Flowcharts & Diagrams](#-system-flowcharts--diagrams) • [Database Schema](#-database-schema--erd) • [Performance Charts](#-performance-analytics--charts) • [AI Coaching Engine](#-ai-assisted-coaching-engine) • [Installation](#-installation--getting-started)
 
 ---
 
@@ -91,121 +91,174 @@ The application enforces a **Layered (N-Tier) ASP.NET Core MVC Architecture**, e
 
 ## 📊 System Flowcharts & Diagrams
 
-### 1. Request & Execution Sequence
+### 1. High-Precision Request & Execution Sequence
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Player as 🎮 Player
+    actor Player as 🎮 Player (Browser)
+    participant View as 🖼️ Razor / Chart.js UI
     participant Ctrl as 🎛️ DashboardController
     participant Service as ⚙️ StatsService
-    participant API as 🌐 FortniteAPI.io
-    participant AI as 🧠 RecommendationEngine
+    participant API as 🌐 FortniteAPI.io Client
+    participant Engine as 🧠 RecommendationEngine
     participant DB as 💾 SQL Server (EF Core)
 
-    Player->>Ctrl: Click "Sync Stats"
-    Ctrl->>Service: SyncAsync(playerId)
-    Service->>API: Fetch Player Stats (FortniteUsername)
-    API-->>Service: Return JSON Match Data
-    Service->>Service: Calculate K/D Ratio & Win Rate %
-    Service->>DB: Upsert Stats Record
-    Service->>AI: GenerateRecommendations(Stats)
-    AI-->>Service: Return Strategy Advice Rules
-    Service->>DB: Save Recommendations Record
-    DB-->>Ctrl: Update Completed
-    Ctrl-->>Player: Render Updated Dashboard with Chart.js
+    Player->>View: Clicks "Sync Stats" Button
+    View->>Ctrl: POST /Dashboard/SyncStats (PlayerId)
+    Ctrl->>Service: SyncPlayerStatsAsync(playerId)
+    
+    rect rgb(25, 30, 45)
+        Note over Service, API: External API Ingestion & Rate Limit Handling
+        Service->>API: GetPlayerStatsAsync(FortniteUsername)
+        alt Cooldown Active or Rate Limited (10 req/min)
+            API-->>Service: HTTP 429 RateLimitExceeded Exception
+            Service-->>Ctrl: Return CooldownWarningResult
+            Ctrl-->>View: Render Toast Warning ("Wait 60s before re-syncing")
+        else Successful Telemetry Fetch
+            API-->>Service: Return JSON Telemetry (Kills, Wins, Matches, Accuracy)
+        end
+    end
+
+    rect rgb(30, 45, 30)
+        Note over Service, DB: KPI Computation & Persistence
+        Service->>Service: Compute K/D Ratio (Kills / Deaths) & Win Rate %
+        Service->>DB: ApplicationDbContext.Stats.Upsert(StatsEntity)
+        DB-->>Service: Confirm StatId & Transaction Commit
+    end
+
+    rect rgb(45, 30, 45)
+        Note over Service, Engine: AI Coaching Rule Engine Execution
+        Service->>Engine: GenerateRecommendations(StatsEntity)
+        Engine->>Engine: Evaluate Thresholds (Accuracy < 25%, K/D < 1.5, Win% < 10%)
+        Engine-->>Service: Return List<RecommendationText>
+        Service->>DB: SaveChangesAsync(RecommendationsList)
+        DB-->>Service: Insert Confirmed
+    end
+
+    Service-->>Ctrl: Return DashboardViewModel (Updated Stats + Tips)
+    Ctrl-->>View: Render Razor View + Chart.js Dataset
+    View-->>Player: Display Updated Graphs & Coaching Tips
 ```
 
-### 2. End-to-End System Workflow
+---
+
+### 2. End-to-End Modular System Architecture Flowchart
 
 ```mermaid
-flowchart TD
-    A([🔑 User Login / Auth]) --> B{Has Linked Fortnite Account?}
-    B -- No --> C[📝 Link Epic Games Username]
-    C --> D[💾 Save Profile to Players Table]
-    B -- Yes --> E[📊 View Player Dashboard]
-    D --> E
-    E --> F[🔄 Trigger Stat Sync]
-    F --> G{Rate Limit Cooldown Active?}
-    G -- Yes --> H[⚠️ Display Cooldown Notice]
-    G -- No --> I[🌐 Request FortniteAPI.io Telemetry]
-    I --> J{API Response Valid?}
-    J -- No/Private --> K[❌ Display Error Message]
-    J -- Success --> L[📐 Compute K/D Ratio & Win Rate %]
-    L --> M[💾 Save Stats in SQL Database]
-    M --> N[🧠 Execute Rule-Based AI Engine]
-    N --> O[✍️ Insert Recommendations]
-    O --> P[📈 Refresh Chart.js Visualizations & Insights]
-    P --> E
+flowchart TB
+    subgraph PRESENTATION["🖼️ Presentation Layer (Client Side)"]
+        UI["🖥️ Razor Views & Bootstrap Layout"]
+        CHART["📈 Chart.js Render Engine (K/D & Win Rates)"]
+        NOTIF["🔔 Client Cooldown Timer & Toast Alerts"]
+    end
+
+    subgraph CONTROLLER["🎛️ Controller Layer (ASP.NET Core MVC)"]
+        AUTH_CTRL["🔐 AccountController\n(Login / Register / Roles)"]
+        DASH_CTRL["📊 DashboardController\n(View Stats / Trigger Sync)"]
+        ADMIN_CTRL["🛡️ AdminController\n(Manage Players & Categories)"]
+    end
+
+    subgraph SERVICES["⚙️ Business Service Layer"]
+        API_CLIENT["🌐 FortniteApiClient\n(Centralized API Key & HTTP Client)"]
+        STATS_SVC["📐 StatsService\n(K/D Ratio & Accuracy Delta Calculator)"]
+        COACH_ENG["🧠 RecommendationEngine\n(Strategy Pattern Rule Evaluator)"]
+    end
+
+    subgraph DATA["💾 Data Access & Persistence"]
+        EF_CORE["⚡ Entity Framework Core 8\n(ApplicationDbContext & LINQ Queries)"]
+        SQL_DB[("🗄️ Microsoft SQL Server\n(Users, Players, Stats, Recommendations)")]
+    end
+
+    %% User Interaction Flow
+    UI -->|HTTP Request| DASH_CTRL
+    DASH_CTRL -->|Call Async Service| STATS_SVC
+    STATS_SVC -->|Fetch Telemetry| API_CLIENT
+    API_CLIENT -->|HTTP GET API Key| EXT_API["☁️ FortniteAPI.io"]
+    EXT_API -->|JSON Telemetry Data| API_CLIENT
+    API_CLIENT -->|Raw Telemetry| STATS_SVC
+    STATS_SVC -->|Calculate KPIs| COACH_ENG
+    COACH_ENG -->|Generated Recommendations| STATS_SVC
+    STATS_SVC -->|Map to Entities| EF_CORE
+    EF_CORE -->|Execute SQL Queries| SQL_DB
+    SQL_DB -->|Persisted State| EF_CORE
+    EF_CORE -->|Return ViewModel Data| DASH_CTRL
+    DASH_CTRL -->|Pass Model| CHART
+    CHART -->|Interactive Visuals| UI
 ```
 
 ---
 
 ## 🗄️ Database Schema & ERD
 
-Designed with strict relational integrity in **Microsoft SQL Server**:
+The database schema is fully normalized and implemented in **Microsoft SQL Server** with Entity Framework Core annotations and foreign key constraints:
 
 ```mermaid
 erDiagram
-    USERS ||--|| PLAYERS : "has profile"
-    PLAYERS ||--|| STATS : "maintains current"
-    PLAYERS ||--o{ RECOMMENDATIONS : "receives many"
+    USERS ||--|| PLAYERS : "1 : 1 Profile Link"
+    PLAYERS ||--|| STATS : "1 : 1 Current Match Metrics"
+    PLAYERS ||--o{ RECOMMENDATIONS : "1 : N Coaching History"
 
     USERS {
-        int UserId PK
-        string Name
-        string Email
-        string PasswordHash
-        string Role "Player | Administrator"
+        int UserId PK "Identity (1,1)"
+        string Name "nvarchar(100)"
+        string Email "nvarchar(255), Unique"
+        string PasswordHash "nvarchar(MAX)"
+        string Role "nvarchar(50) [Player | Administrator]"
     }
 
     PLAYERS {
-        int PlayerId PK
-        int UserId FK
-        string FortniteUsername
-        string Game
-        string Team
+        int PlayerId PK "Identity (1,1)"
+        int UserId FK "Foreign Key -> USERS.UserId"
+        string FortniteUsername "nvarchar(100), Indexed"
+        string Game "nvarchar(50)"
+        string Team "nvarchar(100), Nullable"
     }
 
     STATS {
-        int StatId PK
-        int PlayerId FK
-        int Eliminations
-        int Wins
-        float Accuracy
-        float KDRatio
-        int MatchesPlayed
-        datetime LastUpdated
+        int StatId PK "Identity (1,1)"
+        int PlayerId FK "Foreign Key -> PLAYERS.PlayerId"
+        int Eliminations "int (Total Kills)"
+        int Wins "int (Victory Royales)"
+        float Accuracy "float (Shot Hit Percentage)"
+        float KDRatio "float (Calculated Kills/Deaths)"
+        int MatchesPlayed "int (Total Games)"
+        datetime LastUpdated "datetime2 (UTC Timestamp)"
     }
 
     RECOMMENDATIONS {
-        int RecommendationId PK
-        int PlayerId FK
-        string RecommendationText
-        datetime CreatedDate
+        int RecommendationId PK "Identity (1,1)"
+        int PlayerId FK "Foreign Key -> PLAYERS.PlayerId"
+        string RecommendationText "nvarchar(MAX)"
+        datetime CreatedDate "datetime2 (UTC Timestamp)"
     }
 ```
 
 ---
 
-## 📈 Performance KPI Mockups
+## 📈 Performance Analytics & Charts
 
+The dashboard generates real-time telemetry visual breakdowns using **Chart.js** on the frontend. Below are the structured KPI metrics rendered for each player session:
+
+### 1. K/D Ratio & Accuracy Growth Trend (Historical Match Syncs)
+
+```mermaid
+xychart-beta
+    title "Player K/D Ratio Progression Over Last 6 Stat Syncs"
+    x-axis ["Sync #1", "Sync #2", "Sync #3", "Sync #4", "Sync #5", "Sync #6"]
+    y-axis "K/D Ratio" 0.0 --> 5.0
+    line [1.80, 2.40, 2.95, 3.40, 3.85, 4.25]
+    bar [1.50, 2.10, 2.70, 3.10, 3.60, 4.10]
 ```
-+-----------------------------------------------------------------------+
-|  K/D RATIO PROGRESSION (Last 5 Syncs)                                 |
-|                                                                       |
-|  4.0 |                                                     * (3.85)   |
-|  3.5 |                                      * (3.40)                |
-|  3.0 |                       * (2.95)                                 |
-|  2.5 |        * (2.40)                                               |
-|  2.0 | * (1.80)                                                       |
-|      +------------------------------------------------------------    |
-|        Sync #1       Sync #2       Sync #3     Sync #4     Sync #5    |
-+-----------------------------------------------------------------------+
-|  ACCURACY DELTA & WIN RATE DISTRIBUTION                               |
-|  [████████████████████░░░░░░░░░] 68% Shot Accuracy (Assault/DMR)      |
-|  [██████████████░░░░░░░░░░░░░░░] 48% Win Rate (Solo / Squads)         |
-+-----------------------------------------------------------------------+
+
+### 2. Game Mode Performance Breakdown (Win Rate %)
+
+```mermaid
+xychart-beta
+    title "Win Rate % Distribution by Game Mode"
+    x-axis ["Solo", "Duos", "Squads", "Ranked / Arena"]
+    y-axis "Win Rate %" 0 --> 50
+    bar [14, 28, 45, 32]
 ```
 
 ---
