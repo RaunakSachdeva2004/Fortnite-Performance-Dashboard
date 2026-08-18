@@ -1,0 +1,306 @@
+﻿:root {
+    --bg-dark: #080b12;
+    --card-surface: #111827;
+    --card-border: rgba(255, 255, 255, 0.08);
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent-cyan: #06b6d4;
+    --accent-pink: #ec4899;
+    --accent-purple: #a855f7;
+}
+
+
+/* ==========================================================
+   GLOBAL BODY
+   ========================================================== */
+
+body.dashboard-body {
+    background-color: var(--bg-dark);
+    background-image: radial-gradient(circle at 50% -25%, rgba(168, 85, 247, 0.25) 0%, rgba(6, 182, 212, 0.08) 35%, transparent 65%);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--text-main);
+    min-height: 100vh;
+}
+
+/* ==========================================================
+   TEXT COLORS
+   ========================================================== */
+
+.text-cyan {
+    color: var(--accent-cyan) !important;
+}
+
+.text-pink {
+    color: var(--accent-pink) !important;
+}
+
+.text-purple {
+    color: var(--accent-purple) !important;
+}
+
+.border-purple {
+    border-color: var(--accent-purple) !important;
+}
+
+.bg-purple-subtle {
+    background-color: rgba(168, 85, 247, 0.15);
+}
+
+
+/* ==========================================================
+   BUTTONS
+   ========================================================== */
+
+.btn-outline-cyan {
+    color: var(--accent-cyan);
+    border-color: var(--accent-cyan);
+}
+
+.btn-outline-cyan:hover {
+    background-color: var(--accent-cyan);
+    color: #000;
+}
+
+.btn-cyan {
+    background-color: #06b6d4;
+    color: #080b12;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.btn-cyan:hover {
+    background-color: #22d3ee;
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.6);
+    color: #080b12;
+}
+
+
+/* ==========================================================
+   STAT & CONTAINER CARDS
+   ========================================================== */
+
+.stat-card {
+    background-color: var(--card-surface);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(6, 182, 212, 0.4);
+}
+
+
+/* ==========================================================
+   AI COACHING BOX
+   ========================================================== */
+
+.ai-card {
+    background: linear-gradient(145deg, #111827 0%, #1e152f 100%);
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    border-radius: 12px;
+    box-shadow: 0 0 24px rgba(168, 85, 247, 0.15);
+}
+
+.coaching-item {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.coaching-item p {
+    color: #cbd5e1 !important;
+    line-height: 1.5;
+}
+
+
+/* ==========================================================
+   TABLE CUSTOM STYLING
+   ========================================================== */
+
+.custom-table {
+    --bs-table-bg: transparent;
+    --bs-table-hover-bg: rgba(255, 255, 255, 0.03);
+}
+
+.custom-table td,
+.custom-table th {
+    padding: 0.85rem 0.75rem;
+    border-color: rgba(255, 255, 255, 0.06);
+}
+
+.custom-table th {
+    color: #94a3b8 !important;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.custom-table td {
+    color: #e2e8f0;
+}
+
+
+/* ==========================================================
+   CHART CONTAINER
+   ========================================================== */
+
+.chart-container {
+    position: relative;
+    min-height: 220px;
+}
+
+
+/* ==========================================================
+   GLOBAL CONTRAST & VISIBILITY FIXES
+   ========================================================== */
+
+.text-muted {
+    color: #94a3b8 !important;
+}
+
+.badge.bg-dark {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: #e2e8f0 !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+
+/* ==========================================================
+   ESPORTS GAMING TYPOGRAPHY
+   ========================================================== */
+
+.gamer-tag,
+.hud-title,
+.stat-card h2 {
+    font-family: 'Orbitron', system-ui, sans-serif;
+    letter-spacing: 1px;
+}
+
+.stat-card span,
+.custom-table,
+.coaching-item {
+    font-family: 'Rajdhani', 'Inter', sans-serif;
+    font-size: 1.05rem;
+}
+
+
+/* ==========================================================
+   PRO PLAYER BANNER CARD
+   ========================================================== */
+
+.profile-banner {
+    background: linear-gradient(90deg, #111827 0%, #161f36 100%);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    border-radius: 14px;
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.1);
+}
+
+
+/* ==========================================================
+   PLAYER AVATAR
+   ========================================================== */
+
+.avatar-box {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    background: #0f172a;
+    border: 2px solid #06b6d4;
+    padding: 3px;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 6px;
+}
+
+.status-indicator.online {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 12px;
+    height: 12px;
+    background: #10b981;
+    border: 2px solid #111827;
+    border-radius: 50%;
+}
+
+
+/* ==========================================================
+   UNREAL RANK BADGE
+   ========================================================== */
+
+.badge.bg-unreal {
+    background: linear-gradient(
+        135deg,
+        #a855f7 0%,
+        #ec4899 100%
+    );
+
+    color: #fff;
+
+    font-family: 'Orbitron', sans-serif;
+
+    font-size: 0.75rem;
+}
+
+
+/* ==========================================================
+   PINK BADGES
+   ========================================================== */
+
+.bg-pink-subtle {
+    background-color: rgba(236, 72, 153, 0.15);
+}
+
+.border-pink {
+    border-color: #ec4899 !important;
+}
+
+/* ==========================================================
+   PRO HUD VISIBILITY & CONTRAST FIXES
+   ========================================================== */
+
+/* 1. Fix Chart Titles (K/D Growth Trend, Win Rates, Attributes Radar) */
+.hud-title {
+    color: #f8fafc !important; /* Bright white for primary headings */
+}
+
+/* 2. Fix KPI Labels (Total Eliminations, K/D Ratio, etc.) */
+.stat-card span.text-muted {
+    color: #94a3b8 !important; /* Light silver for secondary labels */
+    letter-spacing: 1px;
+}
+
+/* 3. Fix Filter Buttons (Lifetime / Season 5) */
+.btn-group .btn {
+    color: #cbd5e1 !important; 
+}
+.btn-group .btn.active {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 4. Fix Chart Badges (Last 6 Syncs, Mode Split) */
+.badge.bg-dark {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: #e2e8f0 !important; 
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* 5. Fix AI Coaching Title and Text */
+.ai-card h5, .ai-card h5 i {
+    color: #f8fafc !important;
+}
+.coaching-item strong {
+    color: #f8fafc !important;
+}
+/* Fix Gamer Tag Name Visibility */
+.gamer-tag {
+    color: #f8fafc !important;
+}
