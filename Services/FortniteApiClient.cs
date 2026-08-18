@@ -141,6 +141,7 @@ public class FortniteApiClient : IFortniteApiClient
     /// the free-tier limit of 10 requests per minute on FortniteAPI.io.
     /// Blocks the current asynchronous flow until a request slot opens up.
     /// </summary>
+    
     private async Task EnforceRateLimitAsync()
     {
         await _rateLimitSemaphore.WaitAsync();
@@ -156,7 +157,7 @@ public class FortniteApiClient : IFortniteApiClient
 
             if (_requestTimestamps.Count >= MaxRequestsPerMinute)
             {
-                // Find how long we need to wait until the oldest request leaves the 1-minute window
+                // Finds how long we need to wait until the oldest request leaves the 1-minute window
                 var oldestRequestTime = _requestTimestamps.Peek();
                 var timeToWait = RateLimitWindow - (now - oldestRequestTime);
                 

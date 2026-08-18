@@ -2,9 +2,8 @@ using System;
 
 namespace FortniteDashboard.Models;
 
-/// <summary>
-/// A simple result pattern to handle success and failure gracefully without throwing exceptions for expected errors.
-/// </summary>
+/// A simple result pattern to handle success and failure gracefully without throwing exceptions for expected errors
+ 
 public class Result<T>
 {
     public bool IsSuccess { get; }

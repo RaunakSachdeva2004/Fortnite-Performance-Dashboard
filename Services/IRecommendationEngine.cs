@@ -13,6 +13,7 @@ namespace FortniteDashboard.Services;
 /// trained Machine Learning model or an external LLM (Large Language Model) service via dependency 
 /// injection without changing any code in the controllers or domain layer.
 /// </remarks>
+
 public interface IRecommendationEngine
 {
     /// <summary>

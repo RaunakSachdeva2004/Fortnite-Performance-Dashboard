@@ -7,6 +7,7 @@ namespace FortniteDashboard.Services;
 /// Defines the contract for interacting with the external FortniteAPI.io service.
 /// Provides methods to securely fetch real-time game statistics while adhering to API usage rules.
 /// </summary>
+
 public interface IFortniteApiClient
 {
     /// <summary>

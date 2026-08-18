@@ -3,14 +3,6 @@ using FortniteDashboard.Models;
 
 namespace FortniteDashboard.Services;
 
-/// <summary>
-/// An initial implementation of <see cref="IRecommendationEngine"/> that uses 
-/// predetermined if/else logic to evaluate player statistics.
-/// </summary>
-/// <remarks>
-/// acts as the baseline coaching AI 
-/// via <see cref="IRecommendationEngine"/>, this concrete class can easily be substituted by a trained Machine Learning model or an LLM later on
-/// </remarks>
 public class RuleBasedRecommendationEngine : IRecommendationEngine
 {
     /// <inheritdoc />
