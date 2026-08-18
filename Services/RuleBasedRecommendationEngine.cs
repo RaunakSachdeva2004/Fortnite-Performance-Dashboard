@@ -8,9 +8,8 @@ namespace FortniteDashboard.Services;
 /// predetermined if/else logic to evaluate player statistics.
 /// </summary>
 /// <remarks>
-/// This acts as the baseline coaching AI for Phase 1. Because we implement the Strategy Pattern 
-/// via <see cref="IRecommendationEngine"/>, this concrete class can easily be substituted by 
-/// a trained Machine Learning model or an LLM integration later without affecting the rest of the app.
+/// acts as the baseline coaching AI 
+/// via <see cref="IRecommendationEngine"/>, this concrete class can easily be substituted by a trained Machine Learning model or an LLM later on
 /// </remarks>
 public class RuleBasedRecommendationEngine : IRecommendationEngine
 {
