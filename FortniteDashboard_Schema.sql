@@ -10,7 +10,7 @@ USE FortniteDashboardDb;
 GO
 
 /* 
-   Drop existing objects (safe re-run during development)
+   Drop existing objects
  */
     
 IF OBJECT_ID('dbo.Recommendations', 'U') IS NOT NULL DROP TABLE dbo.Recommendations;
@@ -131,24 +131,3 @@ CREATE NONCLUSTERED INDEX IX_Recommendations_PlayerId_CreatedDate
 CREATE NONCLUSTERED INDEX IX_Players_UserId
     ON dbo.Players (UserId);
 GO
-
--- /* 
---    Optional: seed data for local development / demo
---  */
--- INSERT INTO dbo.Users (Name, Email, PasswordHash, Role)
--- VALUES
---     ('Admin User', 'admin@example.com', 'CHANGE_ME_HASH', 'Administrator'),
---     ('Jane Player', 'jane@example.com', 'CHANGE_ME_HASH', 'Player');
-
--- INSERT INTO dbo.Players (UserId, FortniteUsername, Game, Team)
--- VALUES
---     (2, 'JanePlaysFN', 'Fortnite', NULL);
-
--- INSERT INTO dbo.Stats (PlayerId, Eliminations, Wins, Accuracy, KDRatio, MatchesPlayed)
--- VALUES
---     (1, 250, 12, 21.50, 1.85, 140);
-
--- INSERT INTO dbo.Recommendations (PlayerId, RecommendationText)
--- VALUES
---     (1, 'Your accuracy is below 25%. Try spending 15 minutes in Creative aim-training maps before ranked matches.');
--- GO
