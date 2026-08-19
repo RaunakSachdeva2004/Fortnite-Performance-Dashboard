@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Force the app to listen on 127.0.0.1:5001 to avoid port-in-use errors
+builder.WebHost.UseUrls("http://127.0.0.1:5001");
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
