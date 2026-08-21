@@ -1,0 +1,59 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="container d-flex align-items-center justify-content-center py-5" style="min-height: 90vh;">
+    <div class="card auth-card p-4" style="max-width: 460px; width: 100%;">
+        <h3 class="fw-bold text-cyan mb-1"><i class="bi bi-person-plus me-2"></i>CREATE ACCOUNT</h3>
+        <p class="text-muted small mb-4">Link your Epic username to start tracking stats.</p>
+
+        <form asp-controller="Account" asp-action="Register" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label small text-muted">Full Name</label>
+                <input asp-for="Name" class="form-control bg-dark text-light border-secondary" />
+                <span asp-validation-for="Name" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label small text-muted">Email</label>
+                <input asp-for="Email" class="form-control bg-dark text-light border-secondary" />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Password" class="form-label small text-muted">Password</label>
+                    <input asp-for="Password" class="form-control bg-dark text-light border-secondary" />
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ConfirmPassword" class="form-label small text-muted">Confirm Password</label>
+                    <input asp-for="ConfirmPassword" class="form-control bg-dark text-light border-secondary" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="FortniteUsername" class="form-label small text-muted">Epic (Fortnite) Username</label>
+                <input asp-for="FortniteUsername" class="form-control bg-dark text-light border-secondary" placeholder="e.g. JoltX" />
+                <span asp-validation-for="FortniteUsername" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Team" class="form-label small text-muted">Team (optional)</label>
+                <input asp-for="Team" class="form-control bg-dark text-light border-secondary" />
+                <span asp-validation-for="Team" class="text-danger small"></span>
+            </div>
+
+            <button type="submit" class="btn btn-cyan w-100 fw-bold">CREATE ACCOUNT</button>
+
+            <p class="text-muted small text-center mt-3 mb-0">
+                Already have an account? <a asp-controller="Account" asp-action="Login" class="text-cyan">Sign in</a>
+            </p>
+        </form>
+    </div>
+</div>

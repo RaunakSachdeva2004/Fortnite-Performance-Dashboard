@@ -1,0 +1,39 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 90vh;">
+    <div class="card auth-card p-4" style="max-width: 420px; width: 100%;">
+        <h3 class="fw-bold text-cyan mb-1"><i class="bi bi-controller me-2"></i>WELCOME BACK</h3>
+        <p class="text-muted small mb-4">Sign in to view your performance dashboard.</p>
+
+        <form asp-controller="Account" asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label small text-muted">Email</label>
+                <input asp-for="Email" class="form-control bg-dark text-light border-secondary" placeholder="you@example.com" />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label small text-muted">Password</label>
+                <input asp-for="Password" class="form-control bg-dark text-light border-secondary" placeholder="••••••••" />
+                <span asp-validation-for="Password" class="text-danger small"></span>
+            </div>
+
+            <div class="form-check mb-3">
+                <input asp-for="RememberMe" class="form-check-input" />
+                <label asp-for="RememberMe" class="form-check-label small text-muted">Remember me</label>
+            </div>
+
+            <button type="submit" class="btn btn-cyan w-100 fw-bold">SIGN IN</button>
+
+            <p class="text-muted small text-center mt-3 mb-0">
+                No account yet? <a asp-controller="Account" asp-action="Register" class="text-cyan">Register</a>
+            </p>
+        </form>
+    </div>
+</div>
