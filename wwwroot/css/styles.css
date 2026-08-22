@@ -107,6 +107,17 @@ body.dashboard-body {
     box-shadow: 0 0 24px rgba(168, 85, 247, 0.15);
 }
 
+/* ==========================================================
+   AUTH (LOGIN / REGISTER) CARD
+   ========================================================== */
+
+.auth-card {
+    background-color: var(--card-surface);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+}
+
 .coaching-item {
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.05);

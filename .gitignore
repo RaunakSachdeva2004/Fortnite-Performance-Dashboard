@@ -22,3 +22,8 @@ obj/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# SQLite local database (created at runtime, never commit real player data)
+*.db
+*.db-shm
+*.db-wal

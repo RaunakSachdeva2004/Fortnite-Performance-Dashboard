@@ -21,6 +21,6 @@ namespace FortniteDashboard.ViewModels
         public int MatchesPlayed { get; set; }
         public decimal KDRatio { get; set; }
         public decimal WinRate { get; set; }
-        public DateTime? LastUpdated { get; set; }
+        public DateTime? LastSyncedAt { get; set; }
     }
 }

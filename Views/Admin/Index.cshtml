@@ -63,7 +63,7 @@
                             <td>@p.MatchesPlayed.ToString("N0")</td>
                             <td class="text-pink fw-semibold">@p.KDRatio.ToString("0.00")</td>
                             <td class="text-cyan fw-semibold">@p.WinRate.ToString("0.0")%</td>
-                            <td class="text-muted small">@(p.LastUpdated?.ToLocalTime().ToString("g") ?? "Never")</td>
+                            <td class="text-muted small">@(p.LastSyncedAt?.ToLocalTime().ToString("g") ?? "Never")</td>
                         </tr>
                     }
                 </tbody>

@@ -1,563 +1,204 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@model FortniteDashboard.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
 
-    <title>Fortnite Performance Dashboard</title>
+<div class="container py-4">
 
-    <!-- Bootstrap 5.3 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-
-    <!-- Google Fonts: Orbitron, Rajdhani & Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Orbitron:wght@600;800;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/styles.css">
-</head>
-
-<body class="dashboard-body text-light">
-
-    <div class="container py-4">
-
-        <!-- 1. Pro Gamer Identity Banner -->
-        <div class="card profile-banner p-3 mb-4">
-
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-
-                <!-- Left: Avatar & Gamer Tag -->
-                <div class="d-flex align-items-center gap-3">
-
-                    <div class="avatar-box position-relative">
-
-                        <img
-                            src="https://api.dicebear.com/7.x/bottts/svg?seed=JoltX&backgroundColor=06b6d4"
-                            alt="Avatar"
-                            class="avatar-img"
-                        >
-
-                        <span class="status-indicator online"></span>
-
-                    </div>
-
-                    <div>
-
-                        <div class="d-flex align-items-center gap-2">
-
-                            <h3 class="gamer-tag mb-0">
-                                ASHUTOSH
-                            </h3>
-
-                            <span class="badge bg-unreal">
-                                <i class="bi bi-shield-shaded me-1"></i>
-                                UNREAL #412
-                            </span>
-
-                        </div>
-
-                        <div class="d-flex align-items-center gap-3 text-muted small mt-1">
-
-                            <span>
-                                <i class="bi bi-controller text-cyan me-1"></i>
-                                KBM (PC)
-                            </span>
-
-                            <span>&bull;</span>
-
-                            <span>
-                                <i class="bi bi-globe-americas text-cyan me-1"></i>
-                                Asia / Middle East
-                            </span>
-
-                            <span>&bull;</span>
-
-                            <span>
-                                Level:
-                                <strong class="text-white">248</strong>
-                            </span>
-
-                        </div>
-
-                    </div>
-
+    @* ---------- Profile banner ---------- *@
+    <div class="profile-banner p-4 mb-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <div class="position-relative">
+                <div class="avatar-box d-flex align-items-center justify-content-center">
+                    <i class="bi bi-person-fill fs-3 text-cyan"></i>
                 </div>
-
-
-                <!-- Right: Live Sync & Filter Buttons -->
-                <div class="d-flex align-items-center gap-2">
-
-                    <div
-                        class="btn-group btn-group-sm bg-dark p-1 rounded border border-secondary border-opacity-25"
-                        role="group"
-                    >
-
-                        <button
-                            type="button"
-                            class="btn btn-outline-secondary text-light active"
-                        >
-                            Lifetime
-                        </button>
-
-                        <button
-                            type="button"
-                            class="btn btn-outline-secondary text-muted"
-                        >
-                            Season 5
-                        </button>
-
-                    </div>
-
-                    <button
-                        class="btn btn-cyan btn-sm d-flex align-items-center gap-2 px-3 fw-bold"
-                        id="syncBtn"
-                        onclick="triggerSync()"
-                    >
-
-                        <i class="bi bi-arrow-repeat" id="syncIcon"></i>
-
-                        <span>SYNC TELEMETRY</span>
-
-                    </button>
-
-                </div>
-
+                <span class="status-indicator online"></span>
             </div>
-
+            <div>
+                <h4 class="gamer-tag mb-0">@Model.FortniteUsername</h4>
+                <span class="text-muted small">@Model.PlayerName</span>
+                @if (!string.IsNullOrWhiteSpace(Model.Team))
+                {
+                    <span class="badge bg-unreal ms-2">@Model.Team</span>
+                }
+            </div>
         </div>
 
-
-        <!-- 2. Hero KPI Cards with Trend Deltas -->
-        <div class="row g-3 text-center mb-4">
-
-            <div class="col-6 col-md-3">
-
-                <div class="card stat-card p-3 h-100">
-
-                    <span class="text-muted small fw-semibold">
-                        TOTAL ELIMINATIONS
-                    </span>
-
-                    <h2 class="fw-bold text-white my-1">
-                        1,450
-                    </h2>
-
-                    <span class="text-success small fw-bold">
-                        <i class="bi bi-arrow-up-short"></i>
-                        +84 this week
-                    </span>
-
-                </div>
-
+        <div class="text-md-end">
+            <div class="text-muted small mb-1">
+                Last synced:
+                @(Model.Stats is not null
+                    ? Model.Stats.RecordedAt.ToLocalTime().ToString("MMM d, yyyy HH:mm")
+                    : "Never")
             </div>
-
-
-            <div class="col-6 col-md-3">
-
-                <div class="card stat-card p-3 h-100">
-
-                    <span class="text-muted small fw-semibold">
-                        K/D RATIO
-                    </span>
-
-                    <h2 class="fw-bold text-pink my-1">
-                        7.80
-                    </h2>
-
-                    <span class="text-success small fw-bold">
-                        <i class="bi bi-arrow-up-short"></i>
-                        +0.45 delta
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <div class="col-6 col-md-3">
-
-                <div class="card stat-card p-3 h-100">
-
-                    <span class="text-muted small fw-semibold">
-                        WIN RATE
-                    </span>
-
-                    <h2 class="fw-bold text-cyan my-1">
-                        42.0%
-                    </h2>
-
-                    <span class="text-danger small fw-bold">
-                        <i class="bi bi-arrow-down-short"></i>
-                        -1.2% delta
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <div class="col-6 col-md-3">
-
-                <div class="card stat-card p-3 h-100">
-
-                    <span class="text-muted small fw-semibold">
-                        SHOT ACCURACY
-                    </span>
-
-                    <h2 class="fw-bold text-white my-1">
-                        31.6%
-                    </h2>
-
-                    <span class="text-success small fw-bold">
-                        <i class="bi bi-arrow-up-short"></i>
-                        +3.1% precision
-                    </span>
-
-                </div>
-
-            </div>
-
+            <form asp-controller="Dashboard" asp-action="SyncStats" method="post" class="d-flex gap-2">
+                @Html.AntiForgeryToken()
+                <input type="text" name="username" class="form-control form-control-sm bg-dark text-light border-secondary"
+                       placeholder="Epic username" value="@Model.FortniteUsername" required style="max-width: 200px;" />
+                <button type="submit" class="btn btn-cyan btn-sm">
+                    <i class="bi bi-arrow-repeat me-1"></i>Sync Stats
+                </button>
+            </form>
         </div>
-
-
-        <!-- 3. Telemetry Charts Section -->
-        <div class="row g-3 mb-4">
-
-            <!-- K/D Progression -->
-            <div class="col-lg-5">
-
-                <div class="card stat-card p-3 h-100">
-
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-
-                        <h6 class="hud-title mb-0">
-                            <i class="bi bi-graph-up text-cyan me-2"></i>
-                            K/D Growth Trend
-                        </h6>
-
-                        <span class="badge bg-dark border border-secondary text-muted">
-                            Last 6 Syncs
-                        </span>
-
-                    </div>
-
-                    <canvas id="kdChart"></canvas>
-
-                </div>
-
-            </div>
-
-
-            <!-- Win Rate Breakdown -->
-            <div class="col-lg-3">
-
-                <div class="card stat-card p-3 h-100">
-
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-
-                        <h6 class="hud-title mb-0">
-                            <i class="bi bi-pie-chart text-cyan me-2"></i>
-                            Win Rates
-                        </h6>
-
-                        <span class="badge bg-dark border border-secondary text-muted">
-                            Mode Split
-                        </span>
-
-                    </div>
-
-                    <canvas id="winRateChart"></canvas>
-
-                </div>
-
-            </div>
-
-
-            <!-- Pro Combat Radar Graph -->
-            <div class="col-lg-4">
-
-                <div class="card stat-card p-3 h-100">
-
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-
-                        <h6 class="hud-title mb-0">
-                            <i class="bi bi-hexagon text-pink me-2"></i>
-                            Attributes Radar
-                        </h6>
-
-                        <span class="badge bg-pink-subtle text-pink border border-pink">
-                            AI Evaluation
-                        </span>
-
-                    </div>
-
-                    <canvas id="radarChart"></canvas>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- 4. AI Coaching Recommendations -->
-        <div class="card ai-card p-4 mb-4">
-
-            <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-purple border-opacity-25 pb-2">
-
-                <h5 class="fw-bold mb-0 text-purple d-flex align-items-center gap-2">
-                    <i class="bi bi-robot fs-4"></i>
-                    AEGIS Tactical Insights & Coaching
-                </h5>
-
-                <span class="badge bg-purple-subtle text-purple border border-purple">
-                    Rule Engine Active
-                </span>
-
-            </div>
-
-
-            <div class="row g-3">
-
-                <!-- Coaching Item 1 -->
-                <div class="col-md-4">
-
-                    <div class="coaching-item p-3 rounded">
-
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-
-                            <strong class="text-white">
-                                Bloom & Discipline
-                            </strong>
-
-                            <span class="badge bg-danger">
-                                High Priority
-                            </span>
-
-                        </div>
-
-                        <p class="text-muted small mb-0">
-                            Shot accuracy is below competitive threshold (25%).
-                            Prioritize first-shot accuracy and avoid sustained spray
-                            at mid-range.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Coaching Item 2 -->
-                <div class="col-md-4">
-
-                    <div class="coaching-item p-3 rounded">
-
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-
-                            <strong class="text-white">
-                                High-Ground Retakes
-                            </strong>
-
-                            <span class="badge bg-warning text-dark">
-                                Medium Priority
-                            </span>
-
-                        </div>
-
-                        <p class="text-muted small mb-0">
-                            Mid-game elimination rate dropped. Focus on protected
-                            ramp rushes and box-fighting pie-cuts during zone
-                            rotations.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Coaching Item 3 -->
-                <div class="col-md-4">
-
-                    <div class="coaching-item p-3 rounded">
-
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-
-                            <strong class="text-white">
-                                Drop Spot Strategy
-                            </strong>
-
-                            <span class="badge bg-info text-dark">
-                                Tactical Tip
-                            </span>
-
-                        </div>
-
-                        <p class="text-muted small mb-0">
-                            Early survival rate is high in Squads. Maintain current
-                            edge-of-map drop locations to guarantee shield economy
-                            before contesting.
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- 5. Recent Matches Telemetry Table -->
-        <div class="card stat-card p-4">
-
-            <div class="d-flex justify-content-between align-items-center mb-3">
-
-                <h5 class="fw-bold text-light mb-0">
-                    <i class="bi bi-clock-history me-2 text-cyan"></i>
-                    Recent Match Telemetry
-                </h5>
-
-                <a href="#" class="small text-cyan text-decoration-none">
-                    View All Matches &rarr;
-                </a>
-
-            </div>
-
-
-            <div class="table-responsive">
-
-                <table class="table table-dark table-hover align-middle mb-0 custom-table">
-
-                    <thead>
-
-                        <tr class="text-muted small">
-
-                            <th>PLACEMENT</th>
-                            <th>GAME MODE</th>
-                            <th>ELIMINATIONS</th>
-                            <th>ACCURACY</th>
-                            <th>K/D DELTA</th>
-                            <th>TIMESTAMP</th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-                        <tr>
-
-                            <td>
-                                <span class="badge bg-warning text-dark fw-bold">
-                                    #1 Victory Royale
-                                </span>
-                            </td>
-
-                            <td>
-                                Squads (Ranked)
-                            </td>
-
-                            <td>
-                                <strong class="text-white">9</strong>
-                            </td>
-
-                            <td>
-                                38%
-                            </td>
-
-                            <td class="text-success fw-semibold">
-                                +0.12
-                            </td>
-
-                            <td class="text-muted small">
-                                15 mins ago
-                            </td>
-
-                        </tr>
-
-
-                        <tr>
-
-                            <td>
-                                <span class="badge bg-secondary">
-                                    #4 Top 5
-                                </span>
-                            </td>
-
-                            <td>
-                                Duos
-                            </td>
-
-                            <td>
-                                <strong class="text-white">4</strong>
-                            </td>
-
-                            <td>
-                                29%
-                            </td>
-
-                            <td class="text-success fw-semibold">
-                                +0.04
-                            </td>
-
-                            <td class="text-muted small">
-                                1 hour ago
-                            </td>
-
-                        </tr>
-
-
-                        <tr>
-
-                            <td>
-                                <span class="badge bg-dark border border-secondary text-muted">
-                                    #22 Early Exit
-                                </span>
-                            </td>
-
-                            <td>
-                                Solo (Arena)
-                            </td>
-
-                            <td>
-                                <strong class="text-white">1</strong>
-                            </td>
-
-                            <td>
-                                21%
-                            </td>
-
-                            <td class="text-danger fw-semibold">
-                                -0.08
-                            </td>
-
-                            <td class="text-muted small">
-                                3 hours ago
-                            </td>
-
-                        </tr>
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </div>
-
     </div>
 
+    @if (!Model.HasStats)
+    {
+        <div class="stat-card p-4 text-center text-muted">
+            <i class="bi bi-info-circle me-2"></i>
+            No stats yet. Enter your Epic username above and click <strong>Sync Stats</strong> to pull your first snapshot from FortniteAPI.io.
+        </div>
+    }
+    else
+    {
+        @* ---------- KPI cards ---------- *@
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="stat-card p-3 text-center">
+                    <span class="text-muted d-block">ELIMINATIONS</span>
+                    <h2 class="text-cyan mb-0">@Model.Stats!.Eliminations</h2>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="stat-card p-3 text-center">
+                    <span class="text-muted d-block">WINS</span>
+                    <h2 class="text-purple mb-0">@Model.Stats.Wins</h2>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="stat-card p-3 text-center">
+                    <span class="text-muted d-block">MATCHES PLAYED</span>
+                    <h2 class="mb-0">@Model.Stats.MatchesPlayed</h2>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="stat-card p-3 text-center">
+                    <span class="text-muted d-block">DEATHS</span>
+                    <h2 class="mb-0">@Model.Stats.Deaths</h2>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="stat-card p-3 text-center">
+                    <span class="text-muted d-block">K/D RATIO</span>
+                    <h2 class="text-pink mb-0">@Model.Stats.KDRatio.ToString("0.00")</h2>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="stat-card p-3 text-center">
+                    <span class="text-muted d-block">WIN RATE</span>
+                    <h2 class="text-cyan mb-0">@Model.Stats.WinRate.ToString("0.0")%</h2>
+                </div>
+            </div>
+        </div>
 
-    <!-- Chart.js 4.4 CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js"></script>
+        @if (Model.Stats.Accuracy > 0)
+        {
+            <div class="stat-card p-3 mb-4 d-inline-block">
+                <span class="text-muted d-block">SHOT ACCURACY</span>
+                <h4 class="mb-0">@Model.Stats.Accuracy.ToString("0.0")%</h4>
+            </div>
+        }
 
-    <!-- Custom JavaScript -->
-    <script src="/js/app.js"></script>
+        <div class="row g-3 mb-4">
+            @* ---------- Trend charts (real history, not mock data) ---------- *@
+            <div class="col-lg-8">
+                <div class="stat-card p-3 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="hud-title mb-0">K/D &amp; Win Rate Trend</h6>
+                        <span class="badge bg-dark">Last @Model.History.Count sync@(Model.History.Count == 1 ? "" : "s")</span>
+                    </div>
+                    @if (Model.History.Count < 2)
+                    {
+                        <p class="text-muted small mb-0">Sync a few more times to build up a trend line.</p>
+                    }
+                    else if (Model.History.Select(s => s.SyncedUsername).Distinct().Count() > 1)
+                    {
+                        <p class="text-warning small mb-2">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            This history mixes stats from multiple different usernames
+                            (@string.Join(", ", Model.History.Select(s => s.SyncedUsername).Distinct())) —
+                            the trend line below isn't one player's real progression. Sync the same
+                            username repeatedly to see a meaningful trend.
+                        </p>
+                    }
+                    <div class="chart-container">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
 
-</body>
-</html>
+            @* ---------- AI coaching recommendations ---------- *@
+            <div class="col-lg-4">
+                <div class="ai-card p-3 h-100">
+                    <h5 class="mb-3"><i class="bi bi-robot me-2"></i>Coaching Tips</h5>
+                    <p class="text-muted small">
+                        Rule-based coaching engine (not a trained AI model) — designed to be swapped for an ML/LLM-backed engine later.
+                    </p>
+                    @if (Model.Recommendations.Count == 0)
+                    {
+                        <p class="text-muted small mb-0">No recommendations yet.</p>
+                    }
+                    else
+                    {
+                        foreach (var rec in Model.Recommendations)
+                        {
+                            <div class="coaching-item rounded p-2 mb-2">
+                                <p class="mb-0 small">@rec.RecommendationText</p>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        @* ---------- Recent sync history table ---------- *@
+        <div class="stat-card p-3">
+            <h6 class="hud-title mb-3">Recent Sync History</h6>
+            <div class="table-responsive">
+                <table class="table custom-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Synced At</th>
+                            <th>Username</th>
+                            <th>Eliminations</th>
+                            <th>Wins</th>
+                            <th>Matches</th>
+                            <th>K/D</th>
+                            <th>Win Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var snap in Enumerable.Reverse(Model.History))
+                        {
+                            <tr>
+                                <td>@snap.RecordedAt.ToLocalTime().ToString("MMM d, HH:mm")</td>
+                                <td class="text-muted">@snap.SyncedUsername</td>
+                                <td>@snap.Eliminations</td>
+                                <td>@snap.Wins</td>
+                                <td>@snap.MatchesPlayed</td>
+                                <td>@snap.KDRatio.ToString("0.00")</td>
+                                <td>@snap.WinRate.ToString("0.0")%</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="~/js/dashboard-charts.js"></script>
+    <script>
+        // Real data serialized from the server-side view model — never fabricated
+        // in JavaScript. If there's no history yet, these arrays are simply empty
+        // and dashboard-charts.js renders an empty/placeholder chart.
+        window.dashboardChartData = {
+            labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ChartLabels)),
+            kd: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ChartKDSeries)),
+            winRate: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ChartWinRateSeries))
+        };
+        initDashboardCharts(window.dashboardChartData);
+    </script>
+}

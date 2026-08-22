@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FortniteDashboard", "FortniteDashboard.csproj", "{44AD96F5-EDD2-4D84-9539-AE3DA285E4EC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FortniteDashboard.Tests", "FortniteDashboard.Tests\FortniteDashboard.Tests.csproj", "{44BE909A-3478-407F-B8E9-E7E75FC0BF63}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{44AD96F5-EDD2-4D84-9539-AE3DA285E4EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44AD96F5-EDD2-4D84-9539-AE3DA285E4EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44AD96F5-EDD2-4D84-9539-AE3DA285E4EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44AD96F5-EDD2-4D84-9539-AE3DA285E4EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44BE909A-3478-407F-B8E9-E7E75FC0BF63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44BE909A-3478-407F-B8E9-E7E75FC0BF63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44BE909A-3478-407F-B8E9-E7E75FC0BF63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44BE909A-3478-407F-B8E9-E7E75FC0BF63}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {848E8B9A-9139-4296-AB8A-FC9D81138FD8}
+	EndGlobalSection
+EndGlobal

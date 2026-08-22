@@ -38,11 +38,16 @@ public class RuleBasedRecommendationEngine : IRecommendationEngine
         }
 
         // Rule 3: Evaluate Accuracy
-        if (stats.Accuracy > 0 && stats.Accuracy < 0.15m)
+        // NOTE: Accuracy is stored as a 0-100 percentage (see Models.Stats.Accuracy),
+        // and defaults to 0 when FortniteAPI.io doesn't supply it (see
+        // StatsService.MapApiResponseToSnapshot). The "> 0" guard below means this
+        // rule simply stays silent until a real accuracy value is available,
+        // instead of firing a false "below 15%" warning on every sync.
+        if (stats.Accuracy > 0 && stats.Accuracy < 15m)
         {
             recommendations.Add("Your accuracy is below 15%. Consider lowering your mouse sensitivity or spending 15 minutes a day in aim training maps.");
         }
-        else if (stats.Accuracy > 0.30m)
+        else if (stats.Accuracy > 30m)
         {
             recommendations.Add("Incredible aim! With accuracy over 30%, you should play aggressively and look for sniper opportunities.");
         }

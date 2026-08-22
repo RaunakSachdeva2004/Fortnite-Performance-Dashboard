@@ -18,30 +18,39 @@ namespace FortniteDashboard.Controllers
 
         public async Task<IActionResult> Index()
         {
+            // CHANGED: Stats used to be a single 1:1 row per Player (p.Stats),
+            // so this used to Include(p => p.Stats) directly. Now that Stats is
+            // a history table (StatsHistory), each player is projected against
+            // only their most recent snapshot, ordered by RecordedAt.
             var players = await _db.Players
                 .AsNoTracking()
                 .Include(p => p.User)
-                .Include(p => p.Stats)
-                .OrderByDescending(p => p.Stats != null ? p.Stats.WinRate : 0)
+                .Include(p => p.StatsHistory)
                 .ToListAsync();
 
-            var vm = new AdminDashboardViewModel
-            {
-                Players = players.Select(p => new AdminPlayerRowViewModel
+            var rows = players
+                .Select(p =>
                 {
-                    PlayerId = p.PlayerId,
-                    UserName = p.User?.Name ?? "(unlinked)",
-                    Email = p.User?.Email ?? "-",
-                    FortniteUsername = p.FortniteUsername,
-                    Team = p.Team,
-                    Eliminations = p.Stats?.Eliminations ?? 0,
-                    Wins = p.Stats?.Wins ?? 0,
-                    MatchesPlayed = p.Stats?.MatchesPlayed ?? 0,
-                    KDRatio = p.Stats?.KDRatio ?? 0,
-                    WinRate = p.Stats?.WinRate ?? 0,
-                    LastUpdated = p.Stats?.LastUpdated
-                }).ToList()
-            };
+                    var latest = p.StatsHistory.OrderByDescending(s => s.RecordedAt).FirstOrDefault();
+                    return new AdminPlayerRowViewModel
+                    {
+                        PlayerId = p.PlayerId,
+                        UserName = p.User?.Name ?? "(unlinked)",
+                        Email = p.User?.Email ?? "-",
+                        FortniteUsername = p.FortniteUsername,
+                        Team = p.Team,
+                        Eliminations = latest?.Eliminations ?? 0,
+                        Wins = latest?.Wins ?? 0,
+                        MatchesPlayed = latest?.MatchesPlayed ?? 0,
+                        KDRatio = latest?.KDRatio ?? 0,
+                        WinRate = latest?.WinRate ?? 0,
+                        LastSyncedAt = latest?.RecordedAt
+                    };
+                })
+                .OrderByDescending(r => r.WinRate)
+                .ToList();
+
+            var vm = new AdminDashboardViewModel { Players = rows };
 
             vm.TotalPlayers = vm.Players.Count;
             vm.TotalTeams = vm.Players

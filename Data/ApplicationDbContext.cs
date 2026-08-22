@@ -34,21 +34,28 @@ namespace FortniteDashboard.Data
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // ---- Stats (1:1 with Players) ----
+            // ---- Stats ----
+            // CHANGED: was configured as 1:1 with Players (a unique index on
+            // PlayerId), which meant every sync overwrote the same row and no
+            // history could ever be kept. This is now a proper 1-to-many
+            // history table: many Stats rows per Player, ordered by RecordedAt.
+            // The SQL-Server-only computed WinRate column is also gone — WinRate
+            // is now just a normal column, computed in C# before SaveChanges.
             modelBuilder.Entity<Stats>(entity =>
             {
-                entity.HasIndex(s => s.PlayerId).IsUnique();
+                // EF Core's default key convention looks for "Id" or
+                // "{ClassName}Id" -- since this class is named "Stats"
+                // (plural), that convention would look for "StatsId", not
+                // "StatId". Declaring the key explicitly avoids renaming the
+                // property everywhere else in the app.
+                entity.HasKey(s => s.StatId);
+
+                entity.HasIndex(s => new { s.PlayerId, s.RecordedAt });
 
                 entity.HasOne(s => s.Player)
-                      .WithOne(p => p.Stats)
-                      .HasForeignKey<Stats>(s => s.PlayerId)
+                      .WithMany(p => p.StatsHistory)
+                      .HasForeignKey(s => s.PlayerId)
                       .OnDelete(DeleteBehavior.Cascade);
-
-                // Matches the SQL Server PERSISTED computed column
-                entity.Property(s => s.WinRate)
-                      .HasComputedColumnSql(
-                          "CASE WHEN [MatchesPlayed] > 0 THEN CAST([Wins] AS DECIMAL(6,2)) / [MatchesPlayed] * 100 ELSE 0 END",
-                          stored: true);
             });
 
             // ---- Recommendations (many:1 with Players) ----

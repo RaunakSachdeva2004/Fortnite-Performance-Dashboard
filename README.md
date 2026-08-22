@@ -7,14 +7,14 @@
 
 [![Framework](https://img.shields.io/badge/ASP.NET%20Core-8.0-512BD4?style=for-the-badge&logo=.net&logoColor=white)](https://dotnet.microsoft.com/)
 [![Language](https://img.shields.io/badge/C%23-12.0-239120?style=for-the-badge&logo=csharp&logoColor=white)](https://learn.microsoft.com/en-us/dotnet/csharp/)
-[![Database](https://img.shields.io/badge/SQL%20Server-2022-CC292B?style=for-the-badge&logo=microsoftsqlserver&logoColor=white)](https://www.microsoft.com/en-us/sql-server/)
+[![Database](https://img.shields.io/badge/SQLite-3-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 [![ORM](https://img.shields.io/badge/EF%20Core-8.0-68217A?style=for-the-badge&logo=nuget&logoColor=white)](https://learn.microsoft.com/en-us/ef/core/)
 [![Frontend](https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
 [![Visuals](https://img.shields.io/badge/Chart.js-4.4-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white)](https://www.chartjs.org/)
-[![API](https://img.shields.io/badge/API-FortniteAPI.io-0078D4?style=for-the-badge&logo=fortnite&logoColor=white)](https://fortniteapi.io/)
+[![API](https://img.shields.io/badge/API-Fortnite--API.com-0078D4?style=for-the-badge&logo=fortnite&logoColor=white)](https://fortnite-api.com/)
 
 <p align="center">
-  <b>An esports analytics web platform engineered with ASP.NET Core MVC. Syncs player match stats via FortniteAPI.io, computes esports KPIs, renders Chart.js trends, and generates rule-based AI coaching recommendations.</b>
+  <b>An esports analytics web platform engineered with ASP.NET Core MVC. Syncs player match stats via Fortnite-API.com, computes esports KPIs, renders Chart.js trends, and generates rule-based AI coaching recommendations.</b>
 </p>
 
 [Key Features](#-key-features) • [MVC Architecture](#-architecture--mvc-design-pattern) • [Flowcharts & Diagrams](#-system-flowcharts--diagrams) • [Database Schema](#-database-schema--erd) • [Performance Charts](#-performance-analytics--charts) • [AI Coaching Engine](#-ai-assisted-coaching-engine) • [Installation](#-installation--getting-started)
@@ -27,18 +27,18 @@
 
 In competitive Battle Royale games like **Fortnite**, players generate rich match telemetries—eliminations, survival placement, weapon accuracy, and K/D ratios. However, checking stats across scattered tools obscures historical improvement trends.
 
-The **Fortnite Performance Dashboard** unifies player match data into a clean ASP.NET Core 8 MVC web application. Integrating `FortniteAPI.io`, Entity Framework Core, SQL Server, and Chart.js, the system imports digital match metrics, computes performance KPIs, renders dynamic trend graphs, and executes a rule-based AI coaching engine to highlight actionable areas for improvement.
+The **Fortnite Performance Dashboard** unifies player match data into a clean ASP.NET Core 8 MVC web application. Integrating `Fortnite-API.com`, Entity Framework Core, SQLite, and Chart.js, the system imports digital match metrics, computes performance KPIs, renders dynamic trend graphs, and executes a rule-based AI coaching engine to highlight actionable areas for improvement.
 
 ---
 
 ## ✨ Key Features
 
-- **🎮 Fortnite Account Sync**: Link Epic Games usernames to fetch real-time match statistics from `FortniteAPI.io`.
+- **🎮 Fortnite Account Sync**: Link Epic Games usernames to fetch real-time match statistics from `Fortnite-API.com`.
 - **📊 Chart.js Analytics**: Visual breakdowns of K/D Ratios, Win Rates, Weapon Accuracy, and Match Volume trends.
 - **🤖 Rule-Based AI Coaching**: Automated advice generator evaluating player metrics against competitive thresholds.
 - **🛡️ Clean MVC & Service Layer**: Decoupled N-tier architecture keeping controllers lightweight and business logic encapsulated.
 - **👥 Role-Based Access Control (RBAC)**: Distinct permissions for **Players** (sync & view stats/coaching) and **Administrators** (manage roster & game mode categories).
-- **⚡ Rate-Limit Protection**: Built-in cooldown handling for `FortniteAPI.io` free-tier rate limits (10 requests/min).
+- **⚡ Rate-Limit Protection**: Built-in cooldown handling for `Fortnite-API.com` free-tier rate limits (10 requests/min, conservative default).
 
 ---
 
@@ -73,7 +73,7 @@ The application enforces a **Layered (N-Tier) ASP.NET Core MVC Architecture**, e
                                       v
        +-------------------------------------------------------------+
        |                     DATABASE ENGINE                         |
-       |                   Microsoft SQL Server                      |
+       |                        SQLite                                |
        +-------------------------------------------------------------+
 ```
 
@@ -100,9 +100,9 @@ sequenceDiagram
     participant View as 🖼️ Razor / Chart.js UI
     participant Ctrl as 🎛️ DashboardController
     participant Service as ⚙️ StatsService
-    participant API as 🌐 FortniteAPI.io Client
+    participant API as 🌐 Fortnite-API.com Client
     participant Engine as 🧠 RecommendationEngine
-    participant DB as 💾 SQL Server (EF Core)
+    participant DB as 💾 SQLite (EF Core)
 
     Player->>View: Clicks "Sync Stats" Button
     View->>Ctrl: POST /Dashboard/SyncStats (PlayerId)
@@ -167,14 +167,14 @@ flowchart TB
 
     subgraph DATA["💾 Data Access & Persistence"]
         EF_CORE["⚡ Entity Framework Core 8\n(ApplicationDbContext & LINQ Queries)"]
-        SQL_DB[("🗄️ Microsoft SQL Server\n(Users, Players, Stats, Recommendations)")]
+        SQL_DB[("🗄️ SQLite\n(Users, Players, Stats, Recommendations)")]
     end
 
     %% User Interaction Flow
     UI -->|HTTP Request| DASH_CTRL
     DASH_CTRL -->|Call Async Service| STATS_SVC
     STATS_SVC -->|Fetch Telemetry| API_CLIENT
-    API_CLIENT -->|HTTP GET API Key| EXT_API["☁️ FortniteAPI.io"]
+    API_CLIENT -->|HTTP GET API Key| EXT_API["☁️ Fortnite-API.com"]
     EXT_API -->|JSON Telemetry Data| API_CLIENT
     API_CLIENT -->|Raw Telemetry| STATS_SVC
     STATS_SVC -->|Calculate KPIs| COACH_ENG
@@ -191,7 +191,7 @@ flowchart TB
 
 ## 🗄️ Database Schema & ERD
 
-The database schema is fully normalized and implemented in **Microsoft SQL Server** with Entity Framework Core annotations and foreign key constraints:
+The database schema is fully normalized and implemented in **SQLite** with Entity Framework Core annotations and foreign key constraints:
 
 ```mermaid
 erDiagram
@@ -310,16 +310,16 @@ Fortnite-Performance-Dashboard/
 │   ├── Stats.cs                 # Match stats & computed KPIs
 │   └── Recommendation.cs       # AI recommendation entity
 ├── Services/
-│   ├── IFortniteApiClient.cs    # FortniteAPI.io client interface
+│   ├── IFortniteApiClient.cs    # Fortnite-API.com client interface
 │   ├── FortniteApiClient.cs     # API client implementation
 │   ├── IStatsService.cs         # Stat processing interface
 │   ├── StatsService.cs          # Core business logic & database updates
-│   └── RecommendationEngine.cs  # Rule-based AI coaching engine
+│   └── RuleBasedRecommendationEngine.cs  # Rule-based AI coaching engine
 ├── Views/
 │   ├── Dashboard/               # Razor Views with Chart.js
 │   ├── Admin/                   # Admin panel views
 │   └── Shared/                  # Navigation & layout templates
-├── appsettings.json             # API keys & SQL connection strings
+├── appsettings.json             # Non-secret config & SQLite connection string
 ├── Program.cs                   # Middleware & Dependency Injection setup
 └── README.md                    # Project documentation
 ```
@@ -328,19 +328,44 @@ Fortnite-Performance-Dashboard/
 
 ## ⚙️ Quick Start
 
+**Option A — Visual Studio**
+
+1. Clone the repo and open `FortniteDashboard.slnx` (or `FortniteDashboard.sln`).
+2. Right-click the project → **Manage User Secrets**, and add:
+   ```json
+   {
+     "FortniteApi:ApiKey": "your-real-fortnite-api.com-key",
+     "SeedAdmin:Password": "choose-your-own-admin-password"
+   }
+   ```
+3. Open **Tools → NuGet Package Manager → Package Manager Console** and run:
+   ```
+   Add-Migration InitialCreate
+   Update-Database
+   ```
+4. Press **F5**. On first run in Development, the app also auto-applies any
+   pending migrations and seeds one Administrator account (see console output
+   for the seeded email — password is whatever you set above).
+
+**Option B — command line**
+
 ```bash
-# 1. Clone repository
 git clone https://github.com/RaunakSachdeva2004/Fortnite-Performance-Dashboard.git
 cd Fortnite-Performance-Dashboard
 
-# 2. Update appsettings.json with your SQL Connection String & FortniteAPI.io Key
+dotnet user-secrets init
+dotnet user-secrets set "FortniteApi:ApiKey" "your-real-fortnite-api.com-key"
+dotnet user-secrets set "SeedAdmin:Password" "choose-your-own-admin-password"
 
-# 3. Apply migrations
+dotnet ef migrations add InitialCreate
 dotnet ef database update
 
-# 4. Run application
 dotnet run
 ```
+
+No SQL Server/LocalDB install is required — `fortnite_dashboard.db` is created
+automatically as a plain file in the project folder. See
+`Docs/SQLite_Migration_Notes.md` for details on what changed and why.
 
 ---
 

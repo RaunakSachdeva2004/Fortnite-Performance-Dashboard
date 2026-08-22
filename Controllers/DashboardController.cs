@@ -37,6 +37,9 @@ namespace FortniteDashboard.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
+            // Ownership note: playerId comes only from the signed-in user's own
+            // claim, never from a route/query parameter, so there is no way for
+            // a player to request another player's dashboard by editing the URL.
             var player = await _db.Players.AsNoTracking()
                 .FirstOrDefaultAsync(p => p.PlayerId == playerId);
 
@@ -46,23 +49,24 @@ namespace FortniteDashboard.Controllers
             var stats = await _statsService.GetStatsForPlayerAsync(playerId.Value);
             var recommendations = await _statsService.GetRecommendationsForPlayerAsync(playerId.Value);
 
+            // CHANGED: previously a single hardcoded "Current" point, because
+            // Stats was 1:1 with Player and no history existed. Now that Stats
+            // is a proper history table, pull the real last-N snapshots so the
+            // trend charts show actual progress across syncs.
+            var history = await _statsService.GetStatsHistoryForPlayerAsync(playerId.Value, take: 10);
+
             var vm = new DashboardViewModel
             {
                 PlayerName = User.FindFirst(ClaimTypes.Name)?.Value ?? player.FortniteUsername,
                 FortniteUsername = player.FortniteUsername,
                 Team = player.Team,
                 Stats = stats,
-                Recommendations = recommendations
+                Recommendations = recommendations,
+                History = history,
+                ChartLabels = history.Select(s => s.RecordedAt.ToLocalTime().ToString("MMM d, HH:mm")).ToList(),
+                ChartWinRateSeries = history.Select(s => s.WinRate).ToList(),
+                ChartKDSeries = history.Select(s => s.KDRatio).ToList()
             };
-
-            if (stats is not null)
-            {
-                // Single current snapshot for Chart.js. Swap this for a real
-                // history table/query if you later track stats over time.
-                vm.ChartLabels = new List<string> { "Current" };
-                vm.ChartWinRateSeries = new List<decimal> { stats.WinRate };
-                vm.ChartKDSeries = new List<decimal> { stats.KDRatio };
-            }
 
             return View(vm);
         }
@@ -81,14 +85,20 @@ namespace FortniteDashboard.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            try
+            // CHANGED: SyncPlayerStatsAsync now returns a typed Result<Stats>
+            // instead of throwing InvalidOperationException for expected
+            // failure cases (player not found, API/network error, rate limit).
+            // That keeps unexpected exceptions from ever reaching the user as a
+            // raw error page, per the "typed result" requirement.
+            var result = await _statsService.SyncPlayerStatsAsync(playerId.Value, username.Trim());
+
+            if (result.IsSuccess)
             {
-                await _statsService.SyncPlayerStatsAsync(playerId.Value, username.Trim());
                 TempData["Success"] = $"Stats synced for {username}.";
             }
-            catch (InvalidOperationException ex)
+            else
             {
-                TempData["Error"] = ex.Message;
+                TempData["Error"] = result.ErrorMessage ?? "Sync failed. Please try again.";
             }
 
             return RedirectToAction(nameof(Index));

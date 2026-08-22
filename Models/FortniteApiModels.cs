@@ -21,42 +21,68 @@ public class Result<T>
     public static Result<T> Failure(string errorMessage) => new Result<T>(false, default, errorMessage);
 }
 
-// Responses from FortniteAPI.io
+// ---------------------------------------------------------------------
+// Responses from Fortnite-API.com (https://fortnite-api.com/)
+//
+// CHANGED: the project originally targeted FortniteAPI.io, which has
+// shut down (confirmed August 2026: "This API will close on March 31,
+// 2026", and the domain no longer resolves). Fortnite-API.com is a
+// long-running, actively maintained alternative with a documented,
+// single-call BR stats endpoint.
+//
+// Verified against Fortnite-API.com's own docs (dash.fortnite-api.com):
+//   GET https://fortnite-api.com/v2/stats/br/v2?name={username}&accountType=epic&timeWindow=lifetime
+//   Header: Authorization: <api-key>
+//
+// ASSUMPTION (isolated here): the exact response body schema below
+// (envelope -> data -> account / stats.all.overall) is reconstructed from
+// third-party integration examples, since the vendor's own example
+// responses are rendered client-side and weren't retrievable. Confirm
+// the shape once you have a real API key -- see
+// Docs/SQLite_Migration_Notes.md for how.
+// ---------------------------------------------------------------------
 
-public class FortniteAccountLookupResponse
+/// <summary>Top-level envelope every Fortnite-API.com response is wrapped in.</summary>
+public class FortniteApiEnvelope<T>
 {
-    public bool Result { get; set; }
-    public string? Account_Id { get; set; }
+    public int Status { get; set; }
+    public T? Data { get; set; }
     public string? Error { get; set; }
 }
 
-public class FortnitePlayerStatsResponse
+public class FortniteStatsData
 {
-    public bool Result { get; set; }
-    public string? Error { get; set; }
+    public FortniteAccountInfo? Account { get; set; }
+    public FortniteStatsByInput? Stats { get; set; }
+}
+
+public class FortniteAccountInfo
+{
+    public string? Id { get; set; }
     public string? Name { get; set; }
-    public FortniteAccountData? Account { get; set; }
-    public FortniteGlobalStats? Global_Stats { get; set; }
 }
 
-public class FortniteAccountData
+/// <summary>Stats are broken down by input device (all/keyboardMouse/gamepad/touch); we only use "all".</summary>
+public class FortniteStatsByInput
 {
-    public int Level { get; set; }
+    public FortniteModeBreakdown? All { get; set; }
 }
 
-public class FortniteGlobalStats
+/// <summary>Within a device breakdown, stats are further split by mode (overall/solo/duo/squad/ltm); we only use "overall".</summary>
+public class FortniteModeBreakdown
 {
-    public FortniteModeStats? Solo { get; set; }
-    public FortniteModeStats? Duo { get; set; }
-    public FortniteModeStats? Squad { get; set; }
+    public FortniteOverallStats? Overall { get; set; }
 }
 
-public class FortniteModeStats
+public class FortniteOverallStats
 {
-    public int Placetop1 { get; set; } // Wins
+    public int Wins { get; set; }
     public int Kills { get; set; }
-    public int Matchesplayed { get; set; }
-    public double Kd { get; set; }
-    public double Winrate { get; set; }
-    public int Score { get; set; }
+    public int Matches { get; set; }
+
+    // NOTE: Fortnite-API.com also reports its own "kd" and "winRate" fields,
+    // but StatsService deliberately does NOT use them directly -- it computes
+    // both itself via StatsCalculator from Wins/Kills/Matches, so the exact
+    // same tested formula applies no matter which upstream API is behind
+    // IFortniteApiClient. Only the raw counts are taken from here.
 }
