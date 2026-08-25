@@ -2,6 +2,7 @@ using FortniteDashboard.Data;
 using FortniteDashboard.Models;
 using FortniteDashboard.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +13,14 @@ builder.Configuration.Sources.Clear();
 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: false);
 builder.Configuration.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: false);
 builder.Configuration.AddEnvironmentVariables();
+
+// ---- Forwarded Headers for Cloud Reverse Proxies (Render / Cloudflare / AWS) ----
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 // ---- MVC ----
 builder.Services.AddControllersWithViews();
@@ -43,6 +52,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Error/403";
         options.ExpireTimeSpan = TimeSpan.FromDays(14);
         options.SlidingExpiration = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     });
 
 builder.Services.AddAuthorization();
@@ -57,6 +68,8 @@ builder.Services.AddScoped<IGameModeService, GameModeService>();
 
 var app = builder.Build();
 
+app.UseForwardedHeaders();
+
 // ---- HTTP Request Pipeline ----
 if (!app.Environment.IsDevelopment())
 {
@@ -65,7 +78,6 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseStatusCodePagesWithReExecute("/Error/{0}");
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
