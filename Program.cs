@@ -7,6 +7,12 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Disable reloadOnChange to prevent Linux inotify user instance limit exceptions on containerized cloud hosts (e.g. Render.com)
+builder.Configuration.Sources.Clear();
+builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: false);
+builder.Configuration.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: false);
+builder.Configuration.AddEnvironmentVariables();
+
 // ---- MVC ----
 builder.Services.AddControllersWithViews();
 
@@ -80,10 +86,9 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// ---- Automatic Migrations & Seeding for Development ----
-if (app.Environment.IsDevelopment())
+// ---- Automatic Migrations & Seeding ----
+using (var scope = app.Services.CreateScope())
 {
-    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     db.Database.Migrate();
 }

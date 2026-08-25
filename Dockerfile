@@ -20,5 +20,10 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
+
+# Disable file watching in container environments to prevent inotify file descriptor limit exceptions
+ENV DOTNET_USE_POLLING_FILE_WATCHER=true
+ENV DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE=false
+
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "FortniteDashboard.dll"]

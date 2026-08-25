@@ -11,6 +11,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - DatabaseProvider=SQLite
       - ConnectionStrings__DefaultConnection=Data Source=/app/data/FortniteDashboard.db
+      - DOTNET_USE_POLLING_FILE_WATCHER=true
+      - DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE=false
     volumes:
       - app-data:/app/data
 
