@@ -14,6 +14,10 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnCh
 builder.Configuration.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: false);
 builder.Configuration.AddEnvironmentVariables();
 
+// ---- Dynamic Port Binding (Render / Cloud Container) ----
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
 // ---- Forwarded Headers for Cloud Reverse Proxies (Render / Cloudflare / AWS) ----
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
