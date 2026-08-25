@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: fortnite-performance-dashboard
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_HTTP_PORTS
+        value: "8080"
+      - key: DOTNET_USE_POLLING_FILE_WATCHER
+        value: "true"
+      - key: DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE
+        value: "false"
+      - key: FortniteApi__ApiKey
+        sync: false
+      - key: SeedAdmin__Email
+        value: admin@fortnitedashboard.local
+      - key: SeedAdmin__Password
+        sync: false
