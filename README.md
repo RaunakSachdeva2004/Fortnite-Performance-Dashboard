@@ -2,7 +2,7 @@
 
 [![Build and Test CI](https://github.com/RaunakSachdeva2004/Fortnite-Performance-Dashboard/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/RaunakSachdeva2004/Fortnite-Performance-Dashboard/actions)
 
-A complete, professional, deployment-ready **Esports Performance Analytics SaaS Platform** built with **ASP.NET Core 8 MVC**, Entity Framework Core 8, Chart.js, and an AI-Assisted Coaching Engine.
+A complete, professional, deployment-ready **Esports Performance Analytics SaaS Platform** built with **ASP.NET Core 8 MVC**, Entity Framework Core 8, Chart.js, and an AI-assisted coaching engine. It provides players and coaches with actionable performance insights and personalized training recommendations.
 
 The platform ingests live match telemetry from Fortnite-API.com, calculates 0–100 player performance ratings, maps weak telemetry areas to actionable competitive training drills, and presents multi-temporal analytics for players and coaches.
 
