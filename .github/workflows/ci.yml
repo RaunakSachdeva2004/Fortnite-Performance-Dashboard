@@ -25,7 +25,7 @@ jobs:
       run: dotnet build FortniteDashboard.sln --no-restore --configuration Release
 
     - name: Test
-      run: dotnet test FortniteDashboard.sln --no-build --verbosity normal
+      run: dotnet test FortniteDashboard.sln --configuration Release --no-build --verbosity normal
 
     - name: Publish
-      run: dotnet publish FortniteDashboard/FortniteDashboard.csproj --configuration Release --output ./publish
+      run: dotnet publish FortniteDashboard.csproj --configuration Release --output ./publish
