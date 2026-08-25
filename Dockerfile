@@ -18,6 +18,7 @@ RUN dotnet publish "FortniteDashboard.csproj" -c Release -o /app/publish /p:UseA
 # Runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
+EXPOSE 8080
 EXPOSE 80
 EXPOSE 443
 COPY --from=publish /app/publish .
