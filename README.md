@@ -1,6 +1,6 @@
 # Fortnite Esports Performance Platform
 
-[![Build and Test CI](https://github.com/RaunakSachdeva2004/Fortnite-Performance-Dashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/RaunakSachdeva2004/Fortnite-Performance-Dashboard/actions)
+[![Build and Test CI](https://github.com/RaunakSachdeva2004/Fortnite-Performance-Dashboard/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/RaunakSachdeva2004/Fortnite-Performance-Dashboard/actions)
 
 A complete, professional, deployment-ready **Esports Performance Analytics SaaS Platform** built with **ASP.NET Core 8 MVC**, Entity Framework Core 8, Chart.js, and an AI-Assisted Coaching Engine.
 
