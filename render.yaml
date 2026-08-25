@@ -10,6 +10,10 @@ services:
         value: Production
       - key: ASPNETCORE_HTTP_PORTS
         value: "8080"
+      - key: DOTNET_USE_POLLING_FILE_WATCHER
+        value: "true"
+      - key: DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE
+        value: "false"
       - key: FortniteApi__ApiKey
         sync: false
       - key: SeedAdmin__Email

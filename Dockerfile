@@ -21,5 +21,10 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 80
 EXPOSE 443
+
+# Disable inotify file watcher to avoid container limits on cloud hosts (Render/AWS/GCP)
+ENV DOTNET_USE_POLLING_FILE_WATCHER=true
+ENV DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE=false
+
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "FortniteDashboard.dll"]
