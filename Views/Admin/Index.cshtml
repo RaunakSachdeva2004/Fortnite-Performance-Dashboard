@@ -1,73 +1,202 @@
-@model AdminDashboardViewModel
+@model FortniteDashboard.ViewModels.AdminDashboardViewModel
 @{
-    ViewData["Title"] = "Admin Panel";
+    ViewData["Title"] = "Admin Dashboard";
 }
 
 <div class="container py-4">
 
-    <h3 class="fw-bold text-purple mb-4"><i class="bi bi-shield-shaded me-2"></i>ADMIN PANEL</h3>
+    @* ---------- Page Header & Status ---------- *@
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div>
+            <h2 class="font-orbitron text-warning fw-bold mb-1"><i class="bi bi-shield-lock me-2"></i>ADMINISTRATOR DASHBOARD</h2>
+            <p class="text-muted small mb-0">Platform oversight, player account controls, and game mode configuration.</p>
+        </div>
 
-    <div class="row g-3 text-center mb-4">
+        <span class="badge bg-dark border border-success text-success font-orbitron px-3 py-2">
+            <i class="bi bi-check-circle-fill me-1"></i>System Status: @Model.SystemStatus
+        </span>
+    </div>
+
+    @* ---------- Platform KPI Cards ---------- *@
+    <div class="row g-3 mb-4">
         <div class="col-6 col-md-3">
-            <div class="card stat-card p-3 h-100">
-                <span class="text-muted small fw-semibold">TOTAL PLAYERS</span>
-                <h2 class="fw-bold text-white my-1">@Model.TotalPlayers</h2>
+            <div class="stat-card p-3 text-center rounded-3 bg-dark-slate border border-secondary border-opacity-25">
+                <span class="text-muted small font-orbitron d-block">TOTAL PLAYERS</span>
+                <h3 class="text-warning font-orbitron mb-0 fw-bold">@Model.TotalPlayers</h3>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="card stat-card p-3 h-100">
-                <span class="text-muted small fw-semibold">TEAMS</span>
-                <h2 class="fw-bold text-white my-1">@Model.TotalTeams</h2>
+            <div class="stat-card p-3 text-center rounded-3 bg-dark-slate border border-secondary border-opacity-25">
+                <span class="text-muted small font-orbitron d-block">ACTIVE PLAYERS</span>
+                <h3 class="text-success font-orbitron mb-0 fw-bold">@Model.ActivePlayers</h3>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="card stat-card p-3 h-100">
-                <span class="text-muted small fw-semibold">AVG WIN RATE</span>
-                <h2 class="fw-bold text-cyan my-1">@Model.AverageWinRate.ToString("0.0")%</h2>
+            <div class="stat-card p-3 text-center rounded-3 bg-dark-slate border border-secondary border-opacity-25">
+                <span class="text-muted small font-orbitron d-block">TOTAL MATCHES LOGGED</span>
+                <h3 class="text-cyan font-orbitron mb-0 fw-bold">@Model.TotalMatchesPlayed</h3>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="card stat-card p-3 h-100">
-                <span class="text-muted small fw-semibold">AVG K/D</span>
-                <h2 class="fw-bold text-pink my-1">@Model.AverageKDRatio.ToString("0.00")</h2>
+            <div class="stat-card p-3 text-center rounded-3 bg-dark-slate border border-secondary border-opacity-25">
+                <span class="text-muted small font-orbitron d-block">PLATFORM AVG SCORE</span>
+                <h3 class="text-purple font-orbitron mb-0 fw-bold">@Model.PlatformPerformanceScore.ToString("0.0")</h3>
             </div>
         </div>
     </div>
 
-    <div class="card stat-card p-4">
-        <h5 class="fw-bold text-light mb-3"><i class="bi bi-people me-2 text-cyan"></i>Roster</h5>
+    @* ---------- Player Management Table ---------- *@
+    <div class="stat-card p-4 rounded-3 bg-dark-slate border border-secondary border-opacity-25 mb-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+            <h5 class="font-orbitron text-warning mb-0"><i class="bi bi-people me-2"></i>Player Account Management</h5>
+            <form method="get" asp-controller="Admin" asp-action="Index" class="d-flex gap-2">
+                <input type="text" name="search" class="form-control form-control-sm bg-dark text-light border-secondary" placeholder="Search player..." />
+                <button type="submit" class="btn btn-outline-warning btn-sm">Search</button>
+            </form>
+        </div>
+
         <div class="table-responsive">
-            <table class="table table-dark table-hover align-middle mb-0 custom-table">
-                <thead>
-                    <tr class="text-muted small">
-                        <th>PLAYER</th>
-                        <th>EMAIL</th>
-                        <th>TEAM</th>
-                        <th>ELIMINATIONS</th>
-                        <th>WINS</th>
-                        <th>MATCHES</th>
-                        <th>K/D</th>
-                        <th>WIN RATE</th>
-                        <th>LAST SYNCED</th>
+            <table class="table table-dark table-hover align-middle mb-0 text-center">
+                <thead class="table-secondary text-uppercase small font-orbitron">
+                    <tr>
+                        <th>Player ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Epic Username</th>
+                        <th>Team</th>
+                        <th>Score</th>
+                        <th>Status</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var p in Model.Players)
+                    @foreach (var player in Model.Players)
                     {
                         <tr>
-                            <td><strong class="text-white">@p.FortniteUsername</strong> <span class="text-muted small">(@p.UserName)</span></td>
-                            <td class="text-muted small">@p.Email</td>
-                            <td>@(p.Team ?? "-")</td>
-                            <td>@p.Eliminations.ToString("N0")</td>
-                            <td>@p.Wins.ToString("N0")</td>
-                            <td>@p.MatchesPlayed.ToString("N0")</td>
-                            <td class="text-pink fw-semibold">@p.KDRatio.ToString("0.00")</td>
-                            <td class="text-cyan fw-semibold">@p.WinRate.ToString("0.0")%</td>
-                            <td class="text-muted small">@(p.LastSyncedAt?.ToLocalTime().ToString("g") ?? "Never")</td>
+                            <td>#@player.PlayerId</td>
+                            <td class="fw-bold">@player.UserName</td>
+                            <td class="text-muted small">@player.Email</td>
+                            <td class="text-cyan font-orbitron">@player.FortniteUsername</td>
+                            <td>@(string.IsNullOrWhiteSpace(player.Team) ? "-" : player.Team)</td>
+                            <td class="fw-bold text-warning font-orbitron">@player.PerformanceScore.ToString("0.0")</td>
+                            <td>
+                                @if (player.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Disabled</span>
+                                }
+                            </td>
+                            <td>
+                                <form asp-controller="Admin" asp-action="ToggleUserStatus" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="userId" value="@player.UserId" />
+                                    <button type="submit" class="btn btn-xs @(player.IsActive ? "btn-outline-danger" : "btn-outline-success")"
+                                            onclick="return confirm('Are you sure you want to toggle user status?');">
+                                        @(player.IsActive ? "Disable" : "Enable")
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                     }
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    @* ---------- Game Mode Management ---------- *@
+    <div class="stat-card p-4 rounded-3 bg-dark-slate border border-secondary border-opacity-25">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="font-orbitron text-cyan mb-0"><i class="bi bi-controller me-2"></i>Supported Game Modes Configuration</h5>
+            <button type="button" class="btn btn-cyan btn-sm text-dark font-orbitron fw-bold" data-bs-toggle="modal" data-bs-target="#addModeModal">
+                <i class="bi bi-plus-circle me-1"></i>Add Game Mode
+            </button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle mb-0 text-center">
+                <thead class="table-secondary text-uppercase small font-orbitron">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Code</th>
+                        <th>Description</th>
+                        <th>Max Players</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var mode in Model.GameModes)
+                    {
+                        <tr>
+                            <td>#@mode.GameModeId</td>
+                            <td class="fw-bold text-cyan">@mode.Name</td>
+                            <td><span class="badge bg-dark border border-secondary">@mode.Code</span></td>
+                            <td class="text-muted small">@mode.Description</td>
+                            <td>@mode.MaxPlayers</td>
+                            <td>
+                                @if (mode.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                <form asp-controller="Admin" asp-action="ToggleGameMode" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="gameModeId" value="@mode.GameModeId" />
+                                    <button type="submit" class="btn btn-xs @(mode.IsActive ? "btn-outline-secondary" : "btn-outline-cyan")">
+                                        @(mode.IsActive ? "Deactivate" : "Activate")
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@* ---------- Add Game Mode Modal ---------- *@
+<div class="modal fade" id="addModeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark-slate border border-warning text-light">
+            <div class="modal-header border-bottom border-secondary border-opacity-25">
+                <h5 class="modal-title font-orbitron text-warning"><i class="bi bi-controller me-2"></i>Add Supported Game Mode</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-controller="Admin" asp-action="AddGameMode" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Game Mode Name</label>
+                        <input type="text" name="Name" class="form-control bg-dark text-light border-secondary" placeholder="e.g. Reload Squads" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Mode Code</label>
+                        <input type="text" name="Code" class="form-control bg-dark text-light border-secondary" placeholder="e.g. RELOAD_SQUADS" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Description</label>
+                        <textarea name="Description" class="form-control bg-dark text-light border-secondary" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Max Players</label>
+                        <input type="number" name="MaxPlayers" class="form-control bg-dark text-light border-secondary" value="100" min="1" max="100" required />
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning text-dark font-orbitron fw-bold">Save Mode</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

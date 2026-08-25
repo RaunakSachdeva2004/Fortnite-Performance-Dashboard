@@ -1,0 +1,80 @@
+@{
+    ViewData["Title"] = "Analyze. Improve. Compete.";
+}
+
+<div class="hero-section py-5 text-center text-light bg-gradient-slate border-bottom border-secondary border-opacity-25">
+    <div class="container py-4">
+        <span class="badge bg-cyan text-dark font-orbitron px-3 py-2 mb-3">AI-POWERED ESPORTS ANALYTICS</span>
+        <h1 class="display-3 font-orbitron fw-extrabold mb-3 text-gradient-cyan">ANALYZE. IMPROVE. COMPETE.</h1>
+        <p class="lead text-muted col-lg-8 mx-auto mb-4 fs-5">
+            Transform raw match telemetry into actionable competitive intelligence. Track K/D progression, win rate velocity, positioning consistency, and receive AI-assisted coaching drills.
+        </p>
+        <div class="d-flex justify-content-center gap-3">
+            <a class="btn btn-cyan btn-lg font-orbitron fw-bold px-4 py-3 text-dark shadow-cyan" asp-controller="Account" asp-action="Register">
+                <i class="bi bi-rocket-takeoff me-2"></i>START ANALYZING FREE
+            </a>
+            <a class="btn btn-outline-light btn-lg font-orbitron fw-bold px-4 py-3" asp-controller="Account" asp-action="Login">
+                <i class="bi bi-box-arrow-in-right me-2"></i>PLAYER LOGIN
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="stat-card p-4 h-100 border border-secondary border-opacity-25 rounded-3">
+                <div class="icon-box mb-3 text-cyan fs-2"><i class="bi bi-bar-chart-line-fill"></i></div>
+                <h4 class="font-orbitron">Telemetry Analytics</h4>
+                <p class="text-muted small">Deep-dive into Combat, Survival, and Consistency stats with rolling 7d, 30d, 90d, and All-Time trend graphs.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card p-4 h-100 border border-secondary border-opacity-25 rounded-3">
+                <div class="icon-box mb-3 text-purple fs-2"><i class="bi bi-cpu-fill"></i></div>
+                <h4 class="font-orbitron">AI Coaching Engine</h4>
+                <p class="text-muted small">Context-aware rule engine detects play-style weaknesses and suggests targeted aim, building, and rotation drills.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card p-4 h-100 border border-secondary border-opacity-25 rounded-3">
+                <div class="icon-box mb-3 text-pink fs-2"><i class="bi bi-trophy-fill"></i></div>
+                <h4 class="font-orbitron">Performance Score</h4>
+                <p class="text-muted small">Transparent 0–100 player rating evaluating K/D, win rate, accuracy, and average placement against global benchmarks.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row align-items-center bg-dark-slate p-4 p-md-5 rounded-4 border border-secondary border-opacity-25 g-4">
+        <div class="col-lg-6">
+            <span class="text-cyan font-orbitron fw-bold text-uppercase small">Fortnite API Integration</span>
+            <h2 class="font-orbitron display-6 fw-bold mb-3">Live Epic Games Synchronization</h2>
+            <p class="text-muted">Connect your Epic Games username to instantly fetch overall battle royale telemetry, lifetime victories, and historical snapshot data.</p>
+            <ul class="list-unstyled text-light small mb-4">
+                <li class="mb-2"><i class="bi bi-check-circle-fill text-cyan me-2"></i>Automatic K/D ratio & win rate derivation</li>
+                <li class="mb-2"><i class="bi bi-check-circle-fill text-cyan me-2"></i>Multi-game mode support (Solo, Duos, Squads, Zero Build)</li>
+                <li class="mb-2"><i class="bi bi-check-circle-fill text-cyan me-2"></i>Historical snapshot logging for real trend lines</li>
+            </ul>
+            <a asp-controller="Account" asp-action="Register" class="btn btn-outline-cyan font-orbitron">Join Platform</a>
+        </div>
+        <div class="col-lg-6">
+            <div class="stat-card p-4 border border-cyan border-opacity-50 text-center">
+                <h5 class="text-muted font-orbitron mb-3">PLATFORM TELEMETRY</h5>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="p-3 bg-dark rounded border border-secondary border-opacity-25">
+                            <span class="text-muted d-block small">ACTIVE PLAYERS</span>
+                            <h3 class="text-cyan font-orbitron mb-0">@(ViewBag.TotalPlayers ?? 15)</h3>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 bg-dark rounded border border-secondary border-opacity-25">
+                            <span class="text-muted d-block small">MATCHES LOGGED</span>
+                            <h3 class="text-purple font-orbitron mb-0">@(ViewBag.TotalMatches ?? 250)</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

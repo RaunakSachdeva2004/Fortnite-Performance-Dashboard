@@ -1,0 +1,188 @@
+@model FortniteDashboard.ViewModels.MatchHistoryViewModel
+@{
+    ViewData["Title"] = "Match History";
+}
+
+<div class="container py-4">
+
+    @* ---------- Page Header & Actions ---------- *@
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div>
+            <h2 class="font-orbitron text-cyan fw-bold mb-1"><i class="bi bi-controller me-2"></i>MATCH HISTORY</h2>
+            <p class="text-muted small mb-0">Detailed telemetry logs per match session across all game modes.</p>
+        </div>
+
+        <button type="button" class="btn btn-cyan text-dark font-orbitron fw-bold" data-bs-toggle="modal" data-bs-target="#addMatchModal">
+            <i class="bi bi-plus-circle me-1"></i>LOG MATCH
+        </button>
+    </div>
+
+    @* ---------- Filter & Search Bar ---------- *@
+    <div class="stat-card p-3 mb-4 rounded-3 bg-dark-slate border border-secondary border-opacity-25">
+        <form method="get" asp-controller="Matches" asp-action="Index" class="row g-2 align-items-center">
+            <div class="col-md-3">
+                <select name="gameMode" class="form-select form-select-sm bg-dark text-light border-secondary">
+                    <option value="">All Game Modes</option>
+                    @foreach (var mode in Model.AvailableGameModes)
+                    {
+                        <option value="@mode" selected="@(Model.SelectedGameMode == mode ? "selected" : null)">@mode</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="searchTerm" class="form-control form-control-sm bg-dark text-light border-secondary"
+                       placeholder="Search placement or kills..." value="@Model.SearchTerm" />
+            </div>
+            <div class="col-md-3">
+                <select name="sortBy" class="form-select form-select-sm bg-dark text-light border-secondary">
+                    <option value="date_desc" selected="@(Model.SortBy == "date_desc" ? "selected" : null)">Date (Newest First)</option>
+                    <option value="date_asc" selected="@(Model.SortBy == "date_asc" ? "selected" : null)">Date (Oldest First)</option>
+                    <option value="kills_desc" selected="@(Model.SortBy == "kills_desc" ? "selected" : null)">Kills (High to Low)</option>
+                    <option value="placement_asc" selected="@(Model.SortBy == "placement_asc" ? "selected" : null)">Placement (Best First)</option>
+                    <option value="damage_desc" selected="@(Model.SortBy == "damage_desc" ? "selected" : null)">Damage (High to Low)</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-cyan btn-sm font-orbitron w-100"><i class="bi bi-filter me-1"></i>Filter</button>
+                <a asp-controller="Matches" asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="bi bi-x-circle"></i></a>
+            </div>
+        </form>
+    </div>
+
+    @* ---------- Match Table ---------- *@
+    <div class="stat-card p-3 rounded-3 bg-dark-slate border border-secondary border-opacity-25 shadow-sm mb-4">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle mb-0 text-center">
+                <thead class="table-secondary text-uppercase small font-orbitron">
+                    <tr>
+                        <th>Match ID</th>
+                        <th>Date &amp; Time</th>
+                        <th>Game Mode</th>
+                        <th>Placement</th>
+                        <th>Kills</th>
+                        <th>Deaths</th>
+                        <th>Assists</th>
+                        <th>Damage</th>
+                        <th>Accuracy</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Matches.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="10" class="text-muted py-4">
+                                <i class="bi bi-inbox fs-3 d-block mb-2 text-secondary"></i>
+                                No match telemetry matches your filter criteria. Click <strong>Log Match</strong> to record a session.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var match in Model.Matches)
+                        {
+                            <tr>
+                                <td class="text-muted small">#@match.MatchId</td>
+                                <td>@match.PlayedAt.ToLocalTime().ToString("MMM d, yyyy HH:mm")</td>
+                                <td><span class="badge bg-dark border border-secondary">@match.GameModeName</span></td>
+                                <td class="fw-bold font-orbitron text-cyan fs-6">#@match.Placement</td>
+                                <td class="fw-bold text-light">@match.Eliminations</td>
+                                <td class="text-danger">@match.Deaths</td>
+                                <td>@match.Assists</td>
+                                <td>@match.DamageDealt</td>
+                                <td>@(match.Accuracy > 0 ? match.Accuracy.ToString("0.0") + "%" : "-")</td>
+                                <td>
+                                    @if (match.IsWin)
+                                    {
+                                        <span class="badge bg-success font-orbitron"><i class="bi bi-trophy-fill me-1"></i>VICTORY</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">FINISHED</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @* ---------- Pagination ---------- *@
+        @if (Model.TotalPages > 1)
+        {
+            <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-secondary border-opacity-25">
+                <span class="text-muted small">Showing page @Model.CurrentPage of @Model.TotalPages (@Model.TotalMatches matches)</span>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                            <a class="page-link bg-dark text-light border-secondary" asp-controller="Matches" asp-action="Index"
+                               asp-route-page="@(Model.CurrentPage - 1)" asp-route-gameMode="@Model.SelectedGameMode" asp-route-searchTerm="@Model.SearchTerm" asp-route-sortBy="@Model.SortBy">Previous</a>
+                        </li>
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                <a class="page-link @(i == Model.CurrentPage ? "bg-cyan text-dark fw-bold border-cyan" : "bg-dark text-light border-secondary")"
+                                   asp-controller="Matches" asp-action="Index" asp-route-page="@i" asp-route-gameMode="@Model.SelectedGameMode" asp-route-searchTerm="@Model.SearchTerm" asp-route-sortBy="@Model.SortBy">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link bg-dark text-light border-secondary" asp-controller="Matches" asp-action="Index"
+                               asp-route-page="@(Model.CurrentPage + 1)" asp-route-gameMode="@Model.SelectedGameMode" asp-route-searchTerm="@Model.SearchTerm" asp-route-sortBy="@Model.SortBy">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+    </div>
+</div>
+
+@* ---------- Add Match Modal ---------- *@
+<div class="modal fade" id="addMatchModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark-slate border border-cyan text-light">
+            <div class="modal-header border-bottom border-secondary border-opacity-25">
+                <h5 class="modal-title font-orbitron text-cyan"><i class="bi bi-controller me-2"></i>Log Match Telemetry</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-controller="Matches" asp-action="AddMatch" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Game Mode</label>
+                        <select name="GameModeName" class="form-select bg-dark text-light border-secondary" required>
+                            @foreach (var mode in Model.AvailableGameModes)
+                            {
+                                <option value="@mode">@mode</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small text-muted">Placement (#)</label>
+                            <input type="number" name="Placement" class="form-control bg-dark text-light border-secondary" min="1" max="100" value="1" required />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small text-muted">Eliminations</label>
+                            <input type="number" name="Eliminations" class="form-control bg-dark text-light border-secondary" min="0" value="0" required />
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small text-muted">Damage Dealt</label>
+                            <input type="number" name="DamageDealt" class="form-control bg-dark text-light border-secondary" min="0" value="0" />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small text-muted">Accuracy %</label>
+                            <input type="number" step="0.1" name="Accuracy" class="form-control bg-dark text-light border-secondary" min="0" max="100" value="0" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-cyan text-dark font-orbitron fw-bold">Save Match</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

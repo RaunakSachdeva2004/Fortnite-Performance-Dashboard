@@ -1,0 +1,86 @@
+@model FortniteDashboard.ViewModels.CoachingViewModel
+@{
+    ViewData["Title"] = "AI Coaching & Training Drills";
+}
+
+<div class="container py-4">
+
+    @* ---------- Page Header & Score Summary ---------- *@
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div>
+            <h2 class="font-orbitron text-cyan fw-bold mb-1"><i class="bi bi-cpu me-2"></i>AI-ASSISTED COACHING ENGINE</h2>
+            <p class="text-muted small mb-0">Rule-based machine recommendations mapping weak telemetry areas to actionable competitive drills.</p>
+        </div>
+
+        <div class="stat-card p-3 rounded-3 bg-dark-slate border border-cyan border-opacity-50 text-center">
+            <span class="text-muted small font-orbitron d-block">CURRENT RATING</span>
+            <div class="d-flex align-items-center gap-2 justify-content-center">
+                <span class="fs-4 font-orbitron fw-bold text-cyan">@Model.PerformanceScore.ToString("0.0")</span>
+                <span class="badge bg-cyan text-dark font-orbitron">@Model.PerformanceLevel</span>
+            </div>
+        </div>
+    </div>
+
+    @* ---------- Top 3 Focus Areas Callout Box ---------- *@
+    <div class="stat-card p-4 mb-4 rounded-3 bg-dark-slate border border-cyan border-opacity-50 shadow-sm">
+        <h5 class="font-orbitron text-cyan mb-3"><i class="bi bi-bullseye me-2"></i>Top 3 Priority Focus Areas</h5>
+        <div class="row g-3">
+            @if (Model.TopFocusAreas.Count == 0)
+            {
+                <div class="col-12 text-muted">No high-priority focus areas detected yet. Sync more matches to trigger recommendations.</div>
+            }
+            else
+            {
+                foreach (var focus in Model.TopFocusAreas)
+                {
+                    <div class="col-md-4">
+                        <div class="p-3 bg-dark rounded-3 border-start border-4 @(focus.Severity == "High" ? "border-danger" : "border-warning") h-100">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-secondary font-orbitron" style="font-size: 0.7rem;">@focus.Category</span>
+                                <span class="badge @(focus.Severity == "High" ? "bg-danger" : "bg-warning text-dark")">@focus.Severity Priority</span>
+                            </div>
+                            <h6 class="font-orbitron text-light mb-2">@focus.MetricName Driver</h6>
+                            <p class="small text-muted mb-2">@focus.RecommendationText</p>
+                            @if (!string.IsNullOrWhiteSpace(focus.RecommendedAction))
+                            {
+                                <div class="p-2 bg-dark-slate rounded text-cyan small border border-secondary border-opacity-25">
+                                    <i class="bi bi-lightbulb me-1"></i><strong>Action:</strong> @focus.RecommendedAction
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    @* ---------- All Recommendations Matrix ---------- *@
+    <div class="stat-card p-4 rounded-3 bg-dark-slate border border-secondary border-opacity-25">
+        <h5 class="font-orbitron text-light mb-3"><i class="bi bi-card-checklist me-2"></i>Comprehensive Recommendation Library</h5>
+        <div class="row g-3">
+            @if (Model.Recommendations.Count == 0)
+            {
+                <div class="col-12 text-muted text-center py-4">No coaching tips recorded yet. Sync your Epic Games account on the Dashboard to populate telemetry recommendations.</div>
+            }
+            else
+            {
+                foreach (var rec in Model.Recommendations)
+                {
+                    <div class="col-md-6">
+                        <div class="p-3 bg-dark rounded-3 border border-secondary border-opacity-25 h-100">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-cyan text-dark font-orbitron">@rec.Category</span>
+                                <span class="text-muted small">@rec.CreatedDate.ToLocalTime().ToString("MMM d, yyyy")</span>
+                            </div>
+                            <p class="text-light fw-medium mb-2">@rec.RecommendationText</p>
+                            @if (!string.IsNullOrWhiteSpace(rec.RecommendedAction))
+                            {
+                                <div class="text-cyan small"><i class="bi bi-check2-circle me-1"></i><strong>Recommended Drill:</strong> @rec.RecommendedAction</div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
