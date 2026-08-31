@@ -393,6 +393,6 @@ Open your browser and navigate to **`http://localhost:5001`**.
 
 <div align="center">
 
-Developed with ❤️ by **Group 15** for ASP.NET Core MVC Capstone.
+Developed with ❤️ by **Group 15** for MP Online Capstone.
 
 </div>
