@@ -295,33 +295,50 @@ public class RuleBasedRecommendationEngine : IRecommendationEngine
 ```
 Fortnite-Performance-Dashboard/
 ├── assets/
-│   └── images/                  # Graphic asset for README header
-│       └── fortnite_ai_coaching.jpg
+│   └── images/                       # Graphic assets for documentation & hero banners
+│       ├── fortnite_ai_coaching.jpg
+│       └── fortnite_dashboard_hero.jpg
 ├── Controllers/
-│   ├── AccountController.cs     # Auth, Registration, Roles
-│   ├── AdminController.cs       # Roster management & admin stats
-│   └── DashboardController.cs   # Dashboard rendering & sync trigger
+│   ├── AccountController.cs          # Authentication, Registration & Cookie Sign-In
+│   ├── AdminController.cs            # Admin player roster management & stats overview
+│   ├── DashboardController.cs        # Player dashboard rendering & Fortnite-API sync
+│   └── ErrorController.cs            # Global error routing & friendly error pages
 ├── Data/
-│   ├── ApplicationDbContext.cs  # EF Core DbContext
-│   └── Migrations/              # Database migration scripts
+│   └── ApplicationDbContext.cs       # EF Core DbContext & entity configurations
+├── Migrations/                       # EF Core SQLite database migration scripts
 ├── Models/
-│   ├── User.cs                  # User entity & credentials
-│   ├── Player.cs                # Linked Fortnite profile model
-│   ├── Stats.cs                 # Match stats & computed KPIs
-│   └── Recommendation.cs       # AI recommendation entity
+│   ├── FortniteApiModels.cs          # Fortnite-API.com response DTOs
+│   └── Models.cs                     # Domain entities (User, Player, Stats, Recommendation)
+├── viewmodels/
+│   ├── AdminViewModels.cs            # Admin panel view models & forms
+│   ├── AuthViewModels.cs             # Login and Registration view models
+│   └── DashboardViewModel.cs         # Dashboard KPI & chart payload view models
 ├── Services/
-│   ├── IFortniteApiClient.cs    # Fortnite-API.com client interface
-│   ├── FortniteApiClient.cs     # API client implementation
-│   ├── IStatsService.cs         # Stat processing interface
-│   ├── StatsService.cs          # Core business logic & database updates
-│   └── RuleBasedRecommendationEngine.cs  # Rule-based AI coaching engine
+│   ├── IFortniteApiClient.cs         # Fortnite API client interface
+│   ├── FortniteApiClient.cs          # HTTP client for Fortnite-API.com
+│   ├── IStatsService.cs              # Stats sync & aggregation interface
+│   ├── StatsService.cs               # Player telemetry & database persistence service
+│   ├── StatsCalculator.cs            # KPI computation (K/D, Win Rate, Accuracy)
+│   ├── IRecommendationEngine.cs      # Recommendation engine contract
+│   └── RuleBasedRecommendationEngine.cs # AI-assisted coaching rule evaluator
 ├── Views/
-│   ├── Dashboard/               # Razor Views with Chart.js
-│   ├── Admin/                   # Admin panel views
-│   └── Shared/                  # Navigation & layout templates
-├── appsettings.json             # Non-secret config & SQLite connection string
-├── Program.cs                   # Middleware & Dependency Injection setup
-└── README.md                    # Project documentation
+│   ├── Account/                      # Login, Registration, and Access Denied views
+│   ├── Admin/                        # Admin dashboard & player management views
+│   ├── Dashboard/                    # Main player dashboard & Chart.js views
+│   ├── Error/                        # Error response views
+│   └── Shared/                       # Layout (_Layout.cshtml) & navigation navbar
+├── wwwroot/
+│   ├── css/styles.css                # Custom dark/neon esports styling
+│   └── js/dashboard-charts.js        # Chart.js rendering & telemetry graph logic
+├── FortniteDashboard.Tests/          # Automated xUnit test suite
+│   ├── RuleBasedRecommendationEngineTests.cs
+│   └── StatsCalculatorTests.cs
+├── Docs/                             # Requirement Analysis & System Architecture PDFs
+├── Database/                         # SQLite & SQL Server DDL reference schemas
+├── appsettings.json                  # Application configuration & connection strings
+├── Program.cs                        # Middleware pipeline & Dependency Injection
+├── FortniteDashboard.csproj          # ASP.NET Core project definition
+└── README.md                         # Project documentation & guides
 ```
 
 ---
