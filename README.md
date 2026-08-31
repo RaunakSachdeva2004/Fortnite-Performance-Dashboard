@@ -345,44 +345,49 @@ Fortnite-Performance-Dashboard/
 
 ## ⚙️ Quick Start
 
-**Option A — Visual Studio**
+### 🚀 Option A — Visual Studio (Recommended)
 
-1. Clone the repo and open `FortniteDashboard.slnx` (or `FortniteDashboard.sln`).
-2. Right-click the project → **Manage User Secrets**, and add:
+1. Clone the repository and open **`FortniteDashboard.slnx`** (or `FortniteDashboard.sln`).
+2. *(Optional)* Right-click **FortniteDashboard** project → **Manage User Secrets** to configure custom credentials:
    ```json
    {
-     "FortniteApi:ApiKey": "your-real-fortnite-api.com-key",
-     "SeedAdmin:Password": "choose-your-own-admin-password"
+     "FortniteApi:ApiKey": "your-optional-fortnite-api-key",
+     "SeedAdmin:Password": "YourCustomAdminPassword123!"
    }
    ```
-3. Open **Tools → NuGet Package Manager → Package Manager Console** and run:
-   ```
-   Add-Migration InitialCreate
-   Update-Database
-   ```
-4. Press **F5**. On first run in Development, the app also auto-applies any
-   pending migrations and seeds one Administrator account (see console output
-   for the seeded email — password is whatever you set above).
+3. Press **F5** (or click **Start Debugging**).
+   - EF Core automatically applies SQLite migrations and seeds the Administrator account upon launch.
+   - The app opens at `http://localhost:5001` or `https://localhost:5002`.
 
-**Option B — command line**
+---
+
+### 💻 Option B — .NET CLI
 
 ```bash
+# 1. Clone the repository
 git clone https://github.com/RaunakSachdeva2004/Fortnite-Performance-Dashboard.git
 cd Fortnite-Performance-Dashboard
 
-dotnet user-secrets init
-dotnet user-secrets set "FortniteApi:ApiKey" "your-real-fortnite-api.com-key"
-dotnet user-secrets set "SeedAdmin:Password" "choose-your-own-admin-password"
+# 2. (Optional) Set user secrets — if omitted, default fallback password 'ChangeMe123!' is used
+dotnet user-secrets set "FortniteApi:ApiKey" "your-optional-fortnite-api-key" --project FortniteDashboard.csproj
+dotnet user-secrets set "SeedAdmin:Password" "YourCustomAdminPassword123!" --project FortniteDashboard.csproj
 
-dotnet ef migrations add InitialCreate
-dotnet ef database update
-
-dotnet run
+# 3. Run the application (SQLite database auto-migrates and seeds on boot)
+dotnet run --project FortniteDashboard.csproj
 ```
 
-No SQL Server/LocalDB install is required — `fortnite_dashboard.db` is created
-automatically as a plain file in the project folder. See
-`Docs/SQLite_Migration_Notes.md` for details on what changed and why.
+Open your browser and navigate to **`http://localhost:5001`**.
+
+---
+
+### 🔑 Default Development Credentials
+
+| Role | Email | Password |
+|---|---|---|
+| **Administrator** | `admin@fortnitedashboard.local` | `ChangeMe123!` *(or custom User Secret password)* |
+
+> [!NOTE]
+> No SQL Server or LocalDB installation is required. A local SQLite database (`fortnite_dashboard.db`) is automatically created and migrated in the project root directory. See [`Docs/SQLite_Migration_Notes.md`](./Docs/SQLite_Migration_Notes.md) for architecture details.
 
 ---
 
