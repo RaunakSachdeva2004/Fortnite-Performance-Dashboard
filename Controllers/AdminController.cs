@@ -1,6 +1,4 @@
 using FortniteDashboard.Data;
-using FortniteDashboard.Models;
-using FortniteDashboard.Services;
 using FortniteDashboard.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,141 +10,62 @@ namespace FortniteDashboard.Controllers
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _db;
-        private readonly IGameModeService _gameModeService;
-        private readonly IPerformanceService _performanceService;
 
-        public AdminController(ApplicationDbContext db, IGameModeService gameModeService, IPerformanceService performanceService)
+        public AdminController(ApplicationDbContext db)
         {
             _db = db;
-            _gameModeService = gameModeService;
-            _performanceService = performanceService;
         }
 
-        public async Task<IActionResult> Index(string? search, string? teamFilter)
+        public async Task<IActionResult> Index()
         {
-            var playersQuery = _db.Players.AsNoTracking()
+            // CHANGED: Stats used to be a single 1:1 row per Player (p.Stats),
+            // so this used to Include(p => p.Stats) directly. Now that Stats is
+            // a history table (StatsHistory), each player is projected against
+            // only their most recent snapshot, ordered by RecordedAt.
+            var players = await _db.Players
+                .AsNoTracking()
                 .Include(p => p.User)
                 .Include(p => p.StatsHistory)
-                .AsQueryable();
+                .ToListAsync();
 
-            if (!string.IsNullOrWhiteSpace(search))
-            {
-                var term = search.Trim().ToLower();
-                playersQuery = playersQuery.Where(p =>
-                    p.FortniteUsername.ToLower().Contains(term) ||
-                    (p.User != null && p.User.Name.ToLower().Contains(term)) ||
-                    (p.User != null && p.User.Email.ToLower().Contains(term)));
-            }
-
-            if (!string.IsNullOrWhiteSpace(teamFilter) && !teamFilter.Equals("All", StringComparison.OrdinalIgnoreCase))
-            {
-                playersQuery = playersQuery.Where(p => p.Team != null && p.Team.Equals(teamFilter, StringComparison.OrdinalIgnoreCase));
-            }
-
-            var players = await playersQuery.ToListAsync();
-
-            var rows = players.Select(p =>
-            {
-                var latest = p.StatsHistory.OrderByDescending(s => s.RecordedAt).FirstOrDefault();
-                decimal score = latest != null ? (latest.PerformanceScore > 0 ? latest.PerformanceScore : _performanceService.CalculatePerformanceScore(latest)) : 0m;
-
-                return new AdminPlayerRowViewModel
+            var rows = players
+                .Select(p =>
                 {
-                    PlayerId = p.PlayerId,
-                    UserId = p.UserId,
-                    UserName = p.User?.Name ?? "(unlinked)",
-                    Email = p.User?.Email ?? "-",
-                    FortniteUsername = p.FortniteUsername,
-                    Team = p.Team,
-                    IsActive = p.User?.IsActive ?? true,
-                    Eliminations = latest?.Eliminations ?? 0,
-                    Wins = latest?.Wins ?? 0,
-                    MatchesPlayed = latest?.MatchesPlayed ?? 0,
-                    KDRatio = latest?.KDRatio ?? 0,
-                    WinRate = latest?.WinRate ?? 0,
-                    PerformanceScore = score,
-                    LastSyncedAt = latest?.RecordedAt
-                };
-            }).OrderByDescending(r => r.PerformanceScore).ToList();
+                    var latest = p.StatsHistory.OrderByDescending(s => s.RecordedAt).FirstOrDefault();
+                    return new AdminPlayerRowViewModel
+                    {
+                        PlayerId = p.PlayerId,
+                        UserName = p.User?.Name ?? "(unlinked)",
+                        Email = p.User?.Email ?? "-",
+                        FortniteUsername = p.FortniteUsername,
+                        Team = p.Team,
+                        Eliminations = latest?.Eliminations ?? 0,
+                        Wins = latest?.Wins ?? 0,
+                        MatchesPlayed = latest?.MatchesPlayed ?? 0,
+                        KDRatio = latest?.KDRatio ?? 0,
+                        WinRate = latest?.WinRate ?? 0,
+                        LastSyncedAt = latest?.RecordedAt
+                    };
+                })
+                .OrderByDescending(r => r.WinRate)
+                .ToList();
 
-            var gameModes = await _gameModeService.GetAllGameModesAsync();
-            int totalMatches = await _db.Matches.CountAsync();
+            var vm = new AdminDashboardViewModel { Players = rows };
 
-            var vm = new AdminDashboardViewModel
-            {
-                Players = rows,
-                GameModes = gameModes,
-                TotalPlayers = rows.Count,
-                ActivePlayers = rows.Count(r => r.IsActive),
-                TotalMatchesPlayed = totalMatches > 0 ? totalMatches : rows.Sum(r => r.MatchesPlayed),
-                TotalTeams = rows.Where(r => !string.IsNullOrWhiteSpace(r.Team)).Select(r => r.Team).Distinct().Count(),
-                AverageWinRate = rows.Count > 0 ? Math.Round(rows.Average(r => r.WinRate), 2) : 0m,
-                AverageKDRatio = rows.Count > 0 ? Math.Round(rows.Average(r => r.KDRatio), 2) : 0m,
-                PlatformPerformanceScore = rows.Count > 0 ? Math.Round(rows.Average(r => r.PerformanceScore), 1) : 0m,
-                SystemStatus = "Operational"
-            };
+            vm.TotalPlayers = vm.Players.Count;
+            vm.TotalTeams = vm.Players
+                .Where(p => !string.IsNullOrWhiteSpace(p.Team))
+                .Select(p => p.Team)
+                .Distinct()
+                .Count();
+            vm.AverageWinRate = vm.Players.Count > 0
+                ? Math.Round(vm.Players.Average(p => p.WinRate), 2)
+                : 0;
+            vm.AverageKDRatio = vm.Players.Count > 0
+                ? Math.Round(vm.Players.Average(p => p.KDRatio), 2)
+                : 0;
 
             return View(vm);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ToggleUserStatus(int userId)
-        {
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.UserId == userId);
-            if (user is null) return NotFound();
-
-            if (user.Role == "Administrator")
-            {
-                TempData["Error"] = "Cannot disable administrator accounts.";
-                return RedirectToAction(nameof(Index));
-            }
-
-            user.IsActive = !user.IsActive;
-            await _db.SaveChangesAsync();
-
-            TempData["Success"] = $"User {user.Name} status updated to {(user.IsActive ? "Active" : "Disabled")}.";
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddGameMode(GameMode mode)
-        {
-            if (!ModelState.IsValid)
-            {
-                TempData["Error"] = "Invalid game mode data.";
-                return RedirectToAction(nameof(Index));
-            }
-
-            var result = await _gameModeService.AddGameModeAsync(mode);
-            if (result.IsSuccess)
-            {
-                TempData["Success"] = $"Game Mode '{mode.Name}' added successfully.";
-            }
-            else
-            {
-                TempData["Error"] = result.ErrorMessage ?? "Failed to add game mode.";
-            }
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ToggleGameMode(int gameModeId)
-        {
-            var result = await _gameModeService.ToggleGameModeStatusAsync(gameModeId);
-            if (result.IsSuccess)
-            {
-                TempData["Success"] = "Game mode status toggled.";
-            }
-            else
-            {
-                TempData["Error"] = result.ErrorMessage ?? "Failed to update game mode.";
-            }
-
-            return RedirectToAction(nameof(Index));
         }
     }
 }

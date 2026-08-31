@@ -2,120 +2,117 @@ using FortniteDashboard.Data;
 using FortniteDashboard.Models;
 using FortniteDashboard.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Disable reloadOnChange to prevent Linux inotify user instance limit exceptions on containerized cloud hosts (e.g. Render.com)
-builder.Configuration.Sources.Clear();
-builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: false);
-builder.Configuration.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: false);
-builder.Configuration.AddEnvironmentVariables();
-
-// ---- Dynamic Port Binding (Render / Cloud Container) ----
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
-
-// ---- Forwarded Headers for Cloud Reverse Proxies (Render / Cloudflare / AWS) ----
-builder.Services.Configure<ForwardedHeadersOptions>(options =>
-{
-    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-    options.KnownNetworks.Clear();
-    options.KnownProxies.Clear();
-});
+// ---------------------------------------------------------------------
+// NOTE: We intentionally do NOT call builder.WebHost.UseUrls(...) here.
+// The previous version hardcoded "http://127.0.0.1:5001", which silently
+// overrode whatever Visual Studio's Properties/launchSettings.json says
+// and dropped the HTTPS profile entirely. Removing it lets the normal
+// Visual Studio "Run" / F5 experience (and its port choice) work as
+// expected. If you ever need a fixed port again, set it in
+// Properties/launchSettings.json instead of here.
+// ---------------------------------------------------------------------
 
 // ---- MVC ----
 builder.Services.AddControllersWithViews();
 
-// ---- Database (SQLite / SQL Server switch) ----
+// ---- Database (SQLite) ----
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-var provider = builder.Configuration["DatabaseProvider"] ?? "SQLite";
-
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-{
-    if (provider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
-    {
-        options.UseSqlServer(connectionString);
-    }
-    else
-    {
-        options.UseSqlite(connectionString);
-    }
-});
+    options.UseSqlite(connectionString));
 
-// ---- Authentication (Cookie-based Identity) ----
+// ---- Authentication (cookie-based; matches AccountController's SignInAsync/SignOutAsync) ----
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.LoginPath = "/Account/Login";
         options.LogoutPath = "/Account/Logout";
-        options.AccessDeniedPath = "/Error/403";
+        options.AccessDeniedPath = "/Account/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromDays(14);
         options.SlidingExpiration = true;
-        options.Cookie.SameSite = SameSiteMode.Lax;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     });
 
 builder.Services.AddAuthorization();
 
-// ---- Application Services (Dependency Injection) ----
+// ---- Application services (Dependency Injection) ----
+// Typed HttpClient: gives FortniteApiClient a managed, pooled HttpClient
+// instance instead of controllers/services newing one up themselves.
 builder.Services.AddHttpClient<IFortniteApiClient, FortniteApiClient>();
+
 builder.Services.AddScoped<IStatsService, StatsService>();
 builder.Services.AddScoped<IRecommendationEngine, RuleBasedRecommendationEngine>();
-builder.Services.AddScoped<IPerformanceService, PerformanceService>();
-builder.Services.AddScoped<IMatchService, MatchService>();
-builder.Services.AddScoped<IGameModeService, GameModeService>();
 
 var app = builder.Build();
 
-app.UseForwardedHeaders();
-
-// ---- HTTP Request Pipeline ----
+// ---- Configure the HTTP request pipeline ----
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
 
-app.UseStatusCodePagesWithReExecute("/Error/{0}");
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthentication();
+app.UseAuthentication(); // MUST come before UseAuthorization(), and was missing entirely before.
 app.UseAuthorization();
-
-// ---- Health Check Endpoint ----
-app.MapGet("/health", () => Results.Ok(new
-{
-    Status = "Healthy",
-    Timestamp = DateTime.UtcNow,
-    Environment = app.Environment.EnvironmentName,
-    DatabaseProvider = provider
-}));
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Dashboard}/{action=Index}/{id?}");
 
-// ---- Automatic Database Migration & Seeding ----
-using (var scope = app.Services.CreateScope())
+// ---------------------------------------------------------------------
+// Development convenience: auto-apply pending EF Core migrations and
+// seed one Administrator account so the app is immediately usable after
+// a fresh `git clone` + F5 in Visual Studio. This does NOT run outside
+// Development, so it will never touch a production database.
+//
+// The seed admin password is read from configuration (User Secrets or
+// an environment variable), never hardcoded. See README "Getting
+// Started" for how to set FortniteApi:ApiKey and SeedAdmin:Password.
+// ---------------------------------------------------------------------
+if (app.Environment.IsDevelopment())
 {
-    var services = scope.ServiceProvider;
-    var logger = services.GetRequiredService<ILogger<Program>>();
-    try
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
+
+    if (!db.Users.Any(u => u.Role == "Administrator"))
     {
-        var db = services.GetRequiredService<ApplicationDbContext>();
-        db.Database.Migrate();
-        logger.LogInformation("Database migration applied successfully.");
-    }
-    catch (Exception ex)
-    {
-        logger.LogError(ex, "An error occurred while applying database migrations.");
+        var seedEmail = builder.Configuration["SeedAdmin:Email"] ?? "admin@fortnitedashboard.local";
+        var seedPassword = builder.Configuration["SeedAdmin:Password"];
+
+        if (string.IsNullOrWhiteSpace(seedPassword))
+        {
+            // Fallback so the app still boots for a first-time run, but this
+            // is clearly not something to ship or leave unchanged.
+            seedPassword = "ChangeMe123!";
+            app.Logger.LogWarning(
+                "No SeedAdmin:Password configured — using a default development-only password " +
+                "('ChangeMe123!'). Set your own with: dotnet user-secrets set \"SeedAdmin:Password\" \"...\"");
+        }
+
+        var admin = new User
+        {
+            Name = "Administrator",
+            Email = seedEmail,
+            Role = "Administrator",
+            CreatedDate = DateTime.UtcNow
+        };
+        admin.PasswordHash = new PasswordHasher<User>().HashPassword(admin, seedPassword);
+
+        db.Users.Add(admin);
+        db.SaveChanges();
+
+        app.Logger.LogInformation("Seeded development Administrator account: {Email}", seedEmail);
     }
 }
 

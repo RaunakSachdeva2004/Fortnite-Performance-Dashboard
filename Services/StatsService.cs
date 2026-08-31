@@ -9,20 +9,17 @@ namespace FortniteDashboard.Services
         private readonly ApplicationDbContext _db;
         private readonly IFortniteApiClient _fortniteApiClient;
         private readonly IRecommendationEngine _recommendationEngine;
-        private readonly IPerformanceService _performanceService;
         private readonly ILogger<StatsService> _logger;
 
         public StatsService(
             ApplicationDbContext db,
             IFortniteApiClient fortniteApiClient,
             IRecommendationEngine recommendationEngine,
-            IPerformanceService performanceService,
             ILogger<StatsService> logger)
         {
             _db = db;
             _fortniteApiClient = fortniteApiClient;
             _recommendationEngine = recommendationEngine;
-            _performanceService = performanceService;
             _logger = logger;
         }
 
@@ -44,6 +41,7 @@ namespace FortniteDashboard.Services
                 .Take(take)
                 .ToListAsync(cancellationToken);
 
+            // Return oldest -> newest so charts read left-to-right correctly.
             recent.Reverse();
             return recent;
         }
@@ -66,7 +64,12 @@ namespace FortniteDashboard.Services
                 return Result<Stats>.Failure($"Player {playerId} not found.");
             }
 
-            var apiResult = await _fortniteApiClient.GetPlayerStatsAsync(epicUsername, cancellationToken);
+            // ---- Call the external API and unwrap its typed Result ----
+            // (Previously this code read fields like apiResult.Eliminations
+            // directly off the Result<T> wrapper, which doesn't exist there —
+            // it would not compile. The actual player data lives one level
+            // down, in apiResult.Value.)
+            var apiResult = await _fortniteApiClient.GetPlayerStatsAsync(epicUsername);
             if (!apiResult.IsSuccess || apiResult.Value is null)
             {
                 _logger.LogWarning("Fortnite API sync failed for {Username}: {Error}", epicUsername, apiResult.ErrorMessage);
@@ -74,10 +77,13 @@ namespace FortniteDashboard.Services
             }
 
             var snapshot = MapApiResponseToSnapshot(playerId, epicUsername, apiResult.Value);
-            snapshot.PerformanceScore = _performanceService.CalculatePerformanceScore(snapshot);
 
+            // Always INSERT a new snapshot rather than updating an existing
+            // row — that's what makes historical trend charts possible.
             _db.Stats.Add(snapshot);
 
+            // Keep the Player's stored Epic username in sync in case the user
+            // synced under a different name than what's on file.
             if (!string.Equals(player.FortniteUsername, epicUsername, StringComparison.OrdinalIgnoreCase))
             {
                 player.FortniteUsername = epicUsername;
@@ -85,21 +91,37 @@ namespace FortniteDashboard.Services
 
             await _db.SaveChangesAsync(cancellationToken);
 
-            // Generate structured recommendations
-            var newRecommendations = _recommendationEngine.GenerateStructuredRecommendations(snapshot);
-            foreach (var rec in newRecommendations)
+            // ---- Generate & persist fresh coaching recommendations ----
+            var recommendationTexts = _recommendationEngine.GenerateRecommendations(snapshot);
+
+            if (recommendationTexts.Count > 0)
             {
-                rec.PlayerId = playerId;
+                var newRecommendations = recommendationTexts.Select(text => new Recommendation
+                {
+                    PlayerId = playerId,
+                    RecommendationText = text,
+                    CreatedDate = DateTime.UtcNow
+                });
+
+                _db.Recommendations.AddRange(newRecommendations);
+                await _db.SaveChangesAsync(cancellationToken);
             }
 
-            _db.Recommendations.AddRange(newRecommendations);
-            await _db.SaveChangesAsync(cancellationToken);
-
-            _logger.LogInformation("Synced stats for player {PlayerId} ({Username}). Performance Score: {Score}", playerId, epicUsername, snapshot.PerformanceScore);
+            _logger.LogInformation("Synced stats for player {PlayerId} ({Username}).", playerId, epicUsername);
 
             return Result<Stats>.Success(snapshot);
         }
 
+        /// <summary>
+        /// Maps a raw Fortnite-API.com response onto a new Stats snapshot.
+        ///
+        /// ASSUMPTION (isolated here, see also Models/FortniteApiModels.cs):
+        /// we use the "all inputs / overall" totals (combined across
+        /// solo/duo/squad and every input device) as the single headline
+        /// number for this MVP dashboard, rather than offering a per-mode
+        /// breakdown. Accuracy is left at 0 ("unknown") because no verified
+        /// accuracy field exists in this API's stats response either.
+        /// </summary>
         private static Stats MapApiResponseToSnapshot(int playerId, string epicUsername, FortniteOverallStats apiData)
         {
             int eliminations = apiData.Kills;
@@ -120,8 +142,7 @@ namespace FortniteDashboard.Services
                 Deaths = deaths,
                 KDRatio = kdRatio,
                 WinRate = winRate,
-                Accuracy = 0m,
-                AvgPlacement = Math.Round(Math.Max(1m, 50m - (winRate * 0.5m)), 1),
+                Accuracy = 0m, // see assumption note above
                 RecordedAt = DateTime.UtcNow
             };
         }
